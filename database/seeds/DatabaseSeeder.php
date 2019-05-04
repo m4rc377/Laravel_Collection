@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -12,5 +13,37 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // $this->call(UsersTableSeeder::class);
+
+        // inserting document types
+        foreach (config('seed_data.document_types') as $value) {
+
+            DB::table('document_type')->insert([
+                'name' => $value
+            ]);
+        }
+
+        // insert task status
+        foreach (config('seed_data.task_statuses') as $value) {
+
+            DB::table('task_status')->insert([
+                'name' => $value
+            ]);
+        }
+
+        // insert task types
+        foreach (config('seed_data.task_types') as $value) {
+
+            DB::table('task_type')->insert([
+                'name' => $value
+            ]);
+        }
+
+        // insert contact status
+        foreach (config('seed_data.contact_status') as $value) {
+
+            DB::table('contact_status')->insert([
+                'name' => $value
+            ]);
+        }
     }
 }
