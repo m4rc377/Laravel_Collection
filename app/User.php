@@ -118,6 +118,16 @@ class User extends Authenticatable
 
 
     /**
+     * get the parent user to the current use
+     * for example get the sales manager for this sales person
+     */
+    public function parent()
+    {
+        return $this->belongsTo(self::class, 'parent_id');
+    }
+
+
+    /**
      * get all child users attached to this user
      * for example get all sales person attached to the sales manager
      */
