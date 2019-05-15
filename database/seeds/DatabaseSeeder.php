@@ -45,5 +45,13 @@ class DatabaseSeeder extends Seeder
                 'name' => $value
             ]);
         }
+
+        // insert sample user as the system admin
+        DB::table('users')->insert([
+           'name' => 'admin',
+           'email' => 'admin@my-crm.com',
+           'password' => bcrypt("admin"),
+           'parent_id' => 0
+        ]);
     }
 }

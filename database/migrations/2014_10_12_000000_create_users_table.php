@@ -21,11 +21,9 @@ class CreateUsersTable extends Migration
             $table->string('position_title')->nullable();
             $table->string('phone')->nullable();
             $table->string('image')->nullable();
-            $table->integer('parent_id')->unsigned();
+            $table->integer('parent_id')->unsigned()->default(0);
             $table->rememberToken();
             $table->timestamps();
-
-            $table->foreign('parent_id')->references('id')->on('users');
         });
     }
 
