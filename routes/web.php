@@ -16,6 +16,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
     Route::get('/', function () {
         return view('pages.home.index');
     });
+
+    Route::resource('/contacts', 'ContactsController');
 });
 
 Route::get('/', function () {
