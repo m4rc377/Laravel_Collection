@@ -1,13 +1,23 @@
-@extends('layouts.app')
+@extends('layout.app')
 
 @section('content')
-    <div class="container">
-        <div class="row">
-            @include('admin.sidebar')
 
-            <div class="col-md-9">
+    <section class="content-header">
+        <h1>
+            contact #{{ $contact->id }}
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+            <li class="{{ url('/admin/contacts') }}">Contacts</li>
+            <li class="active">Show</li>
+        </ol>
+    </section>
+
+
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">contact {{ $contact->id }}</div>
                     <div class="card-body">
 
                         <a href="{{ url('/admin/contacts') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
@@ -36,5 +46,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 @endsection

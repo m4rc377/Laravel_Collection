@@ -1,13 +1,22 @@
-@extends('layouts.app')
+@extends('layout.app')
 
 @section('content')
-    <div class="container">
-        <div class="row">
-            @include('admin.sidebar')
 
-            <div class="col-md-9">
+    <section class="content-header">
+        <h1>
+            Create New contact
+        </h1>
+        <ol class="breadcrumb">
+            <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+            <li class="{{ url('/admin/contacts') }}">Contacts</li>
+            <li class="active">Create</li>
+        </ol>
+    </section>
+
+    <section class="content">
+        <div class="row">
+            <div class="col-md-12">
                 <div class="card">
-                    <div class="card-header">Create New contact</div>
                     <div class="card-body">
                         <a href="{{ url('/admin/contacts') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
                         <br />
@@ -21,7 +30,7 @@
                             </ul>
                         @endif
 
-                        <form method="POST" action="{{ url('/admin/contacts') }}" accept-charset="UTF-8" class="form-horizontal" enctype="multipart/form-data">
+                        <form method="POST" action="{{ url('/admin/contacts') }}" accept-charset="UTF-8" enctype="multipart/form-data">
                             {{ csrf_field() }}
 
                             @include ('pages.contacts.form', ['formMode' => 'create'])
@@ -32,5 +41,5 @@
                 </div>
             </div>
         </div>
-    </div>
+    </section>
 @endsection
