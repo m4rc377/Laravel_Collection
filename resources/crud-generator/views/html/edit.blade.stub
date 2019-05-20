@@ -9,7 +9,7 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url('/%%routeGroup%%') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-            <li class="{{ url('/%%routeGroup%%%%viewName%%') }}">%%crudNameCap%%</li>
+            <li><a href="{{ url('/%%routeGroup%%%%viewName%%') }}">%%crudNameCap%%</a></li>
             <li class="active">Edit</li>
         </ol>
     </section>

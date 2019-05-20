@@ -30,16 +30,16 @@
     <input class="form-control" name="image" type="file" id="image" >
     {!! $errors->first('image', '<p class="help-block">:message</p>') !!}
 </div>
-<div class="form-group {{ $errors->has('parent_id') ? 'has-error' : ''}}">
-    <label for="parent_id" class="control-label">{{ 'Parent' }}</label>
-    <select name="parent_id" id="parent_id">
-        <option value="0"></option>
-        @foreach($parents as $parent)
-            <option value="{{ $parent->id }}" {{ isset($user->parent_id) && $user->parent_id == $parent->id ? 'selected' : ''}}>{{$parent->name}}</option>
-        @endforeach
-    </select>
-    {!! $errors->first('parent_id', '<p class="help-block">:message</p>') !!}
-</div>
+
+@if($formMode == 'create' || ($formMode == 'edit' && $user->is_admin == 0))
+    <div class="form-group {{ $errors->has('is_active') ? 'has-error' : ''}}">
+        <label for="is_active" class="control-label">
+            <input type="checkbox" name="is_active" id="is_active" value="1" class="minimal" {{ $formMode == 'create'?"checked":($user->is_active == 1?"checked":"") }}>
+            {{ 'Active / Banned' }}
+        </label>
+        {!! $errors->first('is_active', '<p class="help-block">:message</p>') !!}
+    </div>
+@endif
 
 
 <div class="form-group">

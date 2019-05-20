@@ -12,6 +12,9 @@
 <!-- AdminLTE Skins. Choose a skin from the css/skins
      folder instead of downloading all of them to reduce the load. -->
 <link rel="stylesheet" href="{{ url('theme') . '/dist/' }}/css/skins/_all-skins.min.css">
+
+<!-- iCheck for checkboxes and radio inputs -->
+<link rel="stylesheet" href="{{ url('theme') . '/plugins/' }}/iCheck/all.css">
 <!-- Date Picker -->
 <link rel="stylesheet" href="{{ url('theme') . '/bower_components/' }}bootstrap-datepicker/dist/css/bootstrap-datepicker.min.css">
 <!-- Daterange picker -->

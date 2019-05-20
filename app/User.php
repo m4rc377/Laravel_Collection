@@ -20,7 +20,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password',
+        'name', 'email', 'password', 'position_title', 'phone', 'image', 'is_admin', 'is_active'
     ];
 
     /**
@@ -114,25 +114,5 @@ class User extends Authenticatable
     public function pendingTasks()
     {
         return $this->hasMany(Task::class, 'assigned_user_id')->where('status', TaskStatus::whereIn('name', [config('seed_data.task_statuses')[0], config('seed_data.task_statuses')[1]])->first()->id);
-    }
-
-
-    /**
-     * get the parent user to the current use
-     * for example get the sales manager for this sales person
-     */
-    public function parent()
-    {
-        return $this->belongsTo(self::class, 'parent_id');
-    }
-
-
-    /**
-     * get all child users attached to this user
-     * for example get all sales person attached to the sales manager
-     */
-    public function children()
-    {
-        return $this->hasMany(self::class, 'parent_id', 'id');
     }
 }

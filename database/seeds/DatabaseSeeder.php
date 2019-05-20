@@ -51,7 +51,8 @@ class DatabaseSeeder extends Seeder
            'name' => 'admin',
            'email' => 'admin@my-crm.com',
            'password' => bcrypt("admin"),
-           'parent_id' => 0
+           'position_title' => 'sales manager',
+           'is_admin' => 1
         ]);
     }
 }

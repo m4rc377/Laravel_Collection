@@ -18,10 +18,11 @@ class UsersController extends Controller
     public function index(Request $request)
     {
         $keyword = $request->get('search');
+
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $users = User::latest()->paginate($perPage);
+            $users = User::where('name', 'like', "%$keyword%")->orWhere('email', 'like', "%$keyword%")->paginate($perPage);
         } else {
             $users = User::latest()->paginate($perPage);
         }
@@ -61,8 +62,15 @@ class UsersController extends Controller
 
         $requestData['password'] = bcrypt($requestData['password']);
 
+        $requestData['is_active'] = isset($requestData['is_active'])?1:0;
+
         if ($request->hasFile('image')) {
             $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
+        }
+
+        if(($count = User::all()->count()) && $count == 0) {
+
+            $requestData['is_admin'] = 1;
         }
 
         User::create($requestData);
@@ -110,13 +118,22 @@ class UsersController extends Controller
     {
         $this->validate($request, [
 			'name' => 'required',
-			'email' => 'required|email|unique:users,email_address,' . $id,
+			'email' => 'required|email|unique:users,email,' . $id,
             'image' => 'image|mimes:jpeg,png,jpg,gif'
 		]);
 
         $requestData = $request->all();
-        
+
+        if ($request->hasFile('image')) {
+            $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
+        }
+
         $user = User::findOrFail($id);
+
+        if($user->is_admin == 0) {
+            $requestData['is_active'] = isset($requestData['is_active']) ? 1 : 0;
+        }
+
         $user->update($requestData);
 
         return redirect('admin/users')->with('flash_message', 'User updated!');

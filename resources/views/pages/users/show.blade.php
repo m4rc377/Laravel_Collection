@@ -8,7 +8,7 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-            <li class="{{ url('/admin/users') }}">Users</li>
+            <li><a href="{{ url('/admin/users') }}"> Users </a></li>
             <li class="active">Show</li>
         </ol>
     </section>
@@ -37,7 +37,12 @@
                                     <tr>
                                         <th>ID</th><td>{{ $user->id }}</td>
                                     </tr>
-                                    <tr><th> Name </th><td> {{ $user->name }} </td></tr><tr><th> Email </th><td> {{ $user->email }} </td></tr><tr><th> Position Title </th><td> {{ $user->position_title }} </td></tr>
+                                    <tr><th> Name </th><td> {{ $user->name }} </td>
+                                    </tr><tr><th> Email </th><td> {{ $user->email }} </td></tr>
+                                    <tr><th> Position Title </th><td> {{ $user->position_title }} </td></tr>
+                                    <tr><th> Phone </th><td> {{ $user->phone }} </td></tr>
+                                    <tr><th> Is Admin </th><td> {!! $user->is_admin == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-times"></i>' !!} </td></tr>
+                                    <tr><th> Is Active </th><td> {!! $user->is_active == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-ban"></i>' !!} </td></tr>
                                 </tbody>
                             </table>
                         </div>
