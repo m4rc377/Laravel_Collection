@@ -23,8 +23,8 @@ class CreateContactTable extends Migration
             $table->string('position_title')->nullable();
             $table->string('industry')->nullable();
             $table->string('project_type')->nullable();
-            $table->integer('company_id')->unsigned()->nullable();
             $table->text('project_description');
+            $table->string('company')->nullable();
             $table->text('description')->nullable();
             $table->string('budget')->nullable();
             $table->string('website')->nullable();
@@ -41,7 +41,6 @@ class CreateContactTable extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            $table->foreign('company_id')->references('id')->on('company')->onDelete('set null');
             $table->foreign('created_by_id')->references('id')->on('users');
             $table->foreign('modified_by_id')->references('id')->on('users')->onDelete('set null');
             $table->foreign('assigned_user_id')->references('id')->on('users');

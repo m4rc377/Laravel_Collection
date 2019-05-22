@@ -9,7 +9,7 @@ class Log extends Model
 {
     protected $table = "log";
 
-    protected $fillable = array("action", "user_id", "request", "http_method", "ip", "page");
+    protected $fillable = ["action", "user_id", "request", "http_method", "ip", "page"];
 
 
     /**

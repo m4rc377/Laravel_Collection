@@ -14,6 +14,8 @@ class Task extends Model
 
     protected $table = "task";
 
+    protected $fillable = ["name", "priority", "status", "type_id", "start_date", "end_date", "complete_date", "contact_type", "contact_id", "description", "created_by_id", "modified_by_id", "assigned_user_id"];
+
 
     /**
      * get created by user object

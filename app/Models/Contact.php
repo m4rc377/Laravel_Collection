@@ -14,6 +14,11 @@ class Contact extends Model
 
     protected $table = "contact";
 
+    protected $fillable = ["first_name", "middle_name", "last_name", "status", "referral_source", "position_title", "industry",
+        "project_type", "company", "project_description", "description", "budget", "website", "linkedin",
+        "address_street", "address_city", "address_state", "address_country", "address_zipcode", "created_by_id",
+        "modified_by_id", "assigned_user_id"];
+
 
     /**
      * get created by user object
@@ -56,17 +61,6 @@ class Contact extends Model
     public function getStatus()
     {
         return $this->belongsTo(ContactStatus::class, 'status');
-    }
-
-
-    /**
-     * get company object of this contact
-     *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function company()
-    {
-        return $this->belongsTo(Company::class, 'company_id');
     }
 
 
