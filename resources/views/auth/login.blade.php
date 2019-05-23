@@ -9,6 +9,12 @@
         <div class="login-box-body">
             <p class="login-box-msg">Sign in to start your session</p>
 
+            @if ($errors->has('active'))
+                <div class="alert alert-danger" role="alert">
+                    <strong>{{ $errors->first('active') }}</strong>
+                </div>
+            @endif
+
             <form action="{{ route('login') }}" method="post" aria-label="{{ __('Login') }}">
                 @csrf
                 <div class="form-group has-feedback">

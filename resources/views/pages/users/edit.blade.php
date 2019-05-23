@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', ' | Edit user')
+
 @section('content')
 
 
