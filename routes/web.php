@@ -19,6 +19,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::resource('/users', 'UsersController');
 
+    Route::get('/my-profile', 'UsersController@getProfile');
+
+    Route::get('/my-profile/edit', 'UsersController@getEditProfile');
+
     Route::resource('/contacts', 'ContactsController');
 
     Route::get('/forbidden/admin-only', function () {

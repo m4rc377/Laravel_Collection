@@ -19,6 +19,9 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
+
+                        @include('includes.flash_message')
+
                         <a href="{{ url('/admin/users/create') }}" class="btn btn-success btn-sm pull-right" title="Add New user">
                             <i class="fa fa-plus" aria-hidden="true"></i> Add New
                         </a>

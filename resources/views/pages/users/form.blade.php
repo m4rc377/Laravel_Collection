@@ -41,6 +41,7 @@
     </div>
 @endif
 
+<input type="hidden" name="is_profile" value="{{ isset($is_profile)?1:0 }}" />
 
 <div class="form-group">
     <input class="btn btn-primary" type="submit" value="{{ $formMode === 'edit' ? 'Update' : 'Create' }}">

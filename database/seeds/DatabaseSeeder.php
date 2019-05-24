@@ -46,6 +46,15 @@ class DatabaseSeeder extends Seeder
             ]);
         }
 
+
+        // insert the system main email into settings table
+        foreach (config('seed_data.settings') as $key => $value) {
+            DB::table('setting')->insert([
+                'setting_key' => $key,
+                'setting_value' => $value
+            ]);
+        }
+
         // insert sample user as the system admin
         DB::table('users')->insert([
            'name' => 'admin',

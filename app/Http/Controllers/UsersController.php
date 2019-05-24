@@ -2,17 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\AppMailer;
 use App\Http\Requests;
-use App\Http\Controllers\Controller;
 
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UsersController extends Controller
 {
-    public function __construct()
+    protected $mailer;
+
+    public function __construct(AppMailer $mailer)
     {
         $this->middleware('admin');
+
+        $this->mailer = $mailer;
     }
 
     /**
@@ -63,7 +68,7 @@ class UsersController extends Controller
             'image' => 'image|mimes:jpeg,png,jpg,gif'
 		]);
 
-        $requestData = $request->all();
+        $requestData = $request->except(['is_profile', '_token']);
 
         $requestData['password'] = bcrypt($requestData['password']);
 
@@ -127,7 +132,9 @@ class UsersController extends Controller
             'image' => 'image|mimes:jpeg,png,jpg,gif'
 		]);
 
-        $requestData = $request->all();
+        $is_profile = $request->is_profile;
+
+        $requestData = $request->except(['is_profile', '_token']);
 
         if ($request->hasFile('image')) {
             $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
@@ -141,7 +148,24 @@ class UsersController extends Controller
 
         $user->update($requestData);
 
-        return redirect('admin/users')->with('flash_message', 'User updated!');
+
+        // send notification email
+        if(!$is_profile && $user->is_admin == 0) {
+
+            if($user->is_active == 1) {
+                $subject = "Your mini crm account have been activated";
+            } else {
+                $subject = "Your mini crm account have been deactivated";
+            }
+
+            $this->mailer->sendActivateBannedEmail($subject, $user);
+        }
+
+        if(!$is_profile) {
+            return redirect('admin/users')->with('flash_message', 'User updated!');
+        } else {
+            return redirect('admin/my-profile')->with('flash_message', 'User updated!');
+        }
     }
 
     /**
@@ -156,5 +180,30 @@ class UsersController extends Controller
         User::destroy($id);
 
         return redirect('admin/users')->with('flash_message', 'User deleted!');
+    }
+
+
+    /**
+     * show user profile
+     *
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function getProfile()
+    {
+        $user = User::findOrFail(Auth::user()->id);
+
+        $is_profile = true;
+
+        return view('pages.users.show', compact('user', 'is_profile'));
+    }
+
+    public function getEditProfile()
+    {
+        $user = User::findOrFail(Auth::user()->id);
+
+        $is_profile = true;
+
+        return view('pages.users.edit', compact('user', 'is_profile'));
     }
 }
