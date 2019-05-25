@@ -227,7 +227,18 @@ class UsersController extends Controller
 
         $user = User::findOrFail($id);
 
+        // check for any roles
+        foreach (Role::all() as $role) {
+
+            if($user->hasRole($role)) {
+                $user->removeRole($role);
+            }
+        }
+
         $user->assignRole($request->role_id);
+
+        // send notify email
+        $this->mailer->sendUpdateRoleEmail("Your mini crm account have updated role", $user);
 
         return redirect('admin/users')->with('flash_message', 'Role updated!');
     }

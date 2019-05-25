@@ -41,4 +41,22 @@ class AppMailer
 
         });
     }
+
+
+    /**
+     * sendUpdateRoleEmail
+     *
+     *
+     * @param $subject
+     * @param $user
+     */
+    public function sendUpdateRoleEmail($subject, $user)
+    {
+        $this->mailer->send("emails.update_role", ['user' => $user, 'subject' => $subject], function($message) use ($subject, $user) {
+
+            $message->from($this->fromAddress, $this->fromName)
+                ->to($user->email)->subject($subject);
+
+        });
+    }
 }

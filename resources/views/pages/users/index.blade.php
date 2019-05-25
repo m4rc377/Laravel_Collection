@@ -62,7 +62,7 @@
                                             <td>{{ $item->position_title }}</td>
                                             <td>{!! $item->is_admin == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-times"></i>' !!}</td>
                                             <td>{!! $item->is_active == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-ban"></i>' !!}</td>
-                                            <td>{{ $item->roles[0]->name }}</td>
+                                            <td>@if(isset($item->roles[0])) <span class="label label-success">{{ $item->roles[0]->name }}</span> @endif</td>
                                             <td>
                                                 <a href="{{ url('/admin/users/' . $item->id) }}" title="View user"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
                                                 <a href="{{ url('/admin/users/' . $item->id . '/edit') }}" title="Edit user"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
