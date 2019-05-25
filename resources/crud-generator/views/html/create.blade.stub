@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', ' | Create %%modelName%%')
+
 @section('content')
 
     <section class="content-header">

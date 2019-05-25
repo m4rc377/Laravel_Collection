@@ -1,18 +1,17 @@
 @extends('layout.app')
 
-@section('title', ' | Edit %%modelName%%')
+@section('title', ' | Create permission')
 
 @section('content')
 
-
     <section class="content-header">
         <h1>
-            Edit %%modelName%% #{{ $%%crudNameSingular%%->%%primaryKey%% }}
+            Create New permission
         </h1>
         <ol class="breadcrumb">
-            <li><a href="{{ url('/%%routeGroup%%') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-            <li><a href="{{ url('/%%routeGroup%%%%viewName%%') }}">%%crudNameCap%%</a></li>
-            <li class="active">Edit</li>
+            <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+            <li><a href="{{ url('/admin/permissions') }}">Permissions</a></li>
+            <li class="active">Create</li>
         </ol>
     </section>
 
@@ -21,7 +20,7 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ url('/%%routeGroup%%%%viewName%%') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
+                        <a href="{{ url('/admin/permissions') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
                         <br />
                         <br />
 
@@ -33,11 +32,10 @@
                             </ul>
                         @endif
 
-                        <form method="POST" action="{{ url('/%%routeGroup%%%%viewName%%/' . $%%crudNameSingular%%->%%primaryKey%%) }}" accept-charset="UTF-8" enctype="multipart/form-data">
-                            {{ method_field('PATCH') }}
+                        <form method="POST" action="{{ url('/admin/permissions') }}" accept-charset="UTF-8" enctype="multipart/form-data">
                             {{ csrf_field() }}
 
-                            @include ('%%viewTemplateDir%%.form', ['formMode' => 'edit'])
+                            @include ('pages.permissions.form', ['formMode' => 'create'])
 
                         </form>
 
