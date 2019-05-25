@@ -21,7 +21,6 @@
 
     @include('layout.footer')
 
+    @yield('scripts')
 </body>
-
-@yield('scripts')
 </html>

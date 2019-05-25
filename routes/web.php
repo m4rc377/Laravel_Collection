@@ -25,6 +25,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::resource('/permissions', 'PermissionsController');
 
+    Route::resource('/roles', 'RolesController');
+
     Route::resource('/contacts', 'ContactsController');
 
     Route::get('/forbidden/admin-only', function () {

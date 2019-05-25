@@ -1,16 +1,16 @@
 @extends('layout.app')
 
-@section('title', ' | List Permissions')
+@section('title', ' | List Roles')
 
 @section('content')
 
     <section class="content-header">
         <h1>
-            Permissions
+            Roles
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url('/admin') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-            <li class="active">Permissions</li>
+            <li class="active">Roles</li>
         </ol>
     </section>
 
@@ -22,11 +22,11 @@
 
                         @include('includes.flash_message')
 
-                        <a href="{{ url('/admin/permissions/create') }}" class="btn btn-success btn-sm pull-right" title="Add New permission">
+                        <a href="{{ url('/admin/roles/create') }}" class="btn btn-success btn-sm pull-right" title="Add New role">
                             <i class="fa fa-plus" aria-hidden="true"></i> Add New
                         </a>
 
-                        <form method="GET" action="{{ url('/admin/permissions') }}" accept-charset="UTF-8" class="form-inline my-2 my-lg-0" role="search">
+                        <form method="GET" action="{{ url('/admin/roles') }}" accept-charset="UTF-8" class="form-inline my-2 my-lg-0" role="search">
                             <div class="input-group">
                                 <input type="text" class="form-control" name="search" placeholder="Search..." value="{{ request('search') }}">
                                 <span class="input-group-btn">
@@ -47,25 +47,25 @@
                                 </tr>
                                 </thead>
                                 <tbody>
-                                    @foreach($permissions as $item)
+                                    @foreach($roles as $item)
                                         <tr>
                                             <td>{{ $item->id }}</td>
                                             <td>{{ $item->name }}</td>
                                             <td>
-                                                <a href="{{ url('/admin/permissions/' . $item->id) }}" title="View permission"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
-                                                <a href="{{ url('/admin/permissions/' . $item->id . '/edit') }}" title="Edit permission"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
+                                                <a href="{{ url('/admin/roles/' . $item->id) }}" title="View role"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
+                                                <a href="{{ url('/admin/roles/' . $item->id . '/edit') }}" title="Edit role"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
 
-                                                <form method="POST" action="{{ url('/admin/permissions' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">
+                                                <form method="POST" action="{{ url('/admin/roles' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">
                                                     {{ method_field('DELETE') }}
                                                     {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete permission" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete role" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                                                 </form>
                                             </td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                             </table>
-                            <div class="pagination-wrapper"> {!! $permissions->appends(['search' => Request::get('search')])->render() !!} </div>
+                            <div class="pagination-wrapper"> {!! $roles->appends(['search' => Request::get('search')])->render() !!} </div>
                         </div>
 
                     </div>

@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 use Illuminate\Http\Request;
 
-class PermissionsController extends Controller
+class RolesController extends Controller
 {
 
     public function __construct()
@@ -26,12 +25,12 @@ class PermissionsController extends Controller
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $permissions = Permission::where('name', 'like', "%$keyword%")->paginate($perPage);
+            $roles = Role::where("name", "like", "%$keyword%")->paginate($perPage);
         } else {
-            $permissions = Permission::latest()->paginate($perPage);
+            $roles = Role::latest()->paginate($perPage);
         }
 
-        return view('pages.permissions.index', compact('permissions'));
+        return view('pages.roles.index', compact('roles'));
     }
 
     /**
@@ -41,7 +40,9 @@ class PermissionsController extends Controller
      */
     public function create()
     {
-        return view('pages.permissions.create');
+        $permissions = Permission::all();
+
+        return view('pages.roles.create', compact('permissions'));
     }
 
     /**
@@ -54,14 +55,21 @@ class PermissionsController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'name' => 'required|unique:permissions,name'
+            'name' => 'required|unique:roles,name',
+            'permissions' => 'required'
         ]);
 
         $requestData = $request->all();
-        
-        Permission::create($requestData);
 
-        return redirect('admin/permissions')->with('flash_message', 'Permission added!');
+        $role = Role::create(['name' => $requestData['name']]);
+
+        // attach permissions to role
+        foreach ($requestData['permissions'] as $key => $value) {
+
+            $role->givePermissionTo(Permission::findById($key));
+        }
+
+        return redirect('admin/roles')->with('flash_message', 'Role added!');
     }
 
     /**
@@ -73,9 +81,9 @@ class PermissionsController extends Controller
      */
     public function show($id)
     {
-        $permission = Permission::findOrFail($id);
+        $role = Role::findOrFail($id);
 
-        return view('pages.permissions.show', compact('permission'));
+        return view('pages.roles.show', compact('role'));
     }
 
     /**
@@ -87,9 +95,18 @@ class PermissionsController extends Controller
      */
     public function edit($id)
     {
-        $permission = Permission::findOrFail($id);
+        $role = Role::findOrFail($id);
 
-        return view('pages.permissions.edit', compact('permission'));
+        $permissions = Permission::all();
+
+        $selected_permissions = [];
+
+        foreach ($role->permissions as $permission) {
+
+            array_push($selected_permissions, $permission->id);
+        }
+
+        return view('pages.roles.edit', compact('role', 'permissions', 'selected_permissions'));
     }
 
     /**
@@ -103,15 +120,30 @@ class PermissionsController extends Controller
     public function update(Request $request, $id)
     {
         $this->validate($request, [
-            'name' => 'required|unique:permissions,name,' . $id
+            'name' => 'required|unique:roles,name,' . $id,
+            'permissions' => 'required'
         ]);
 
         $requestData = $request->all();
         
-        $permission = Permission::findOrFail($id);
-        $permission->update($requestData);
+        $role = Role::findOrFail($id);
 
-        return redirect('admin/permissions')->with('flash_message', 'Permission updated!');
+        $role->update(['name' => $requestData['name']]);
+
+        // remove permissions from role
+        foreach (Permission::all() as $permission) {
+
+            $role->revokePermissionTo($permission);
+        }
+
+
+        // attach permissions to role
+        foreach ($requestData['permissions'] as $key => $value) {
+
+            $role->givePermissionTo(Permission::findById($key));
+        }
+
+        return redirect('admin/roles')->with('flash_message', 'Role updated!');
     }
 
     /**
@@ -123,8 +155,8 @@ class PermissionsController extends Controller
      */
     public function destroy($id)
     {
-        Permission::destroy($id);
+        Role::destroy($id);
 
-        return redirect('admin/permissions')->with('flash_message', 'Permission deleted!');
+        return redirect('admin/roles')->with('flash_message', 'Role deleted!');
     }
 }

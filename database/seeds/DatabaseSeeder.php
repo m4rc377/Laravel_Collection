@@ -63,5 +63,11 @@ class DatabaseSeeder extends Seeder
            'position_title' => 'sales manager',
            'is_admin' => 1
         ]);
+
+
+        // insert the initial permissions
+        foreach (config('seed_data.initial_permissions') as $value) {
+            \Spatie\Permission\Models\Permission::create(['name' => $value]);
+        }
     }
 }

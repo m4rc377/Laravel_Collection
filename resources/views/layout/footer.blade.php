@@ -34,7 +34,7 @@
 <!-- AdminLTE App -->
 <script src="{{ url('theme') . '/dist/' }}/js/adminlte.min.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
-<script src="{{ url('theme') . '/dist/' }}/js/pages/dashboard.js"></script>
+{{--<script src="{{ url('theme') . '/dist/' }}/js/pages/dashboard.js"></script>--}}
 <!-- AdminLTE for demo purposes -->
 <script src="{{ url('theme') . '/dist/' }}/js/demo.js"></script>
 
