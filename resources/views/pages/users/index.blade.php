@@ -49,6 +49,7 @@
                                     <th>Position Title</th>
                                     <th>Is Admin</th>
                                     <th>Active / Banned</th>
+                                    <th>Role</th>
                                     <th>Actions</th>
                                 </tr>
                                 </thead>
@@ -61,10 +62,12 @@
                                             <td>{{ $item->position_title }}</td>
                                             <td>{!! $item->is_admin == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-times"></i>' !!}</td>
                                             <td>{!! $item->is_active == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-ban"></i>' !!}</td>
+                                            <td>{{ $item->roles[0]->name }}</td>
                                             <td>
                                                 <a href="{{ url('/admin/users/' . $item->id) }}" title="View user"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
                                                 <a href="{{ url('/admin/users/' . $item->id . '/edit') }}" title="Edit user"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
 
+                                                <a href="{{ url('/admin/users/role/' . $item->id) }}" title="Select role"><button class="btn bg-purple btn-sm"><i class="fa fa-user" aria-hidden="true"></i> Select role</button></a>
 
                                                 @if($item->is_admin == 0)
                                                     <form method="POST" action="{{ url('/admin/users' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">

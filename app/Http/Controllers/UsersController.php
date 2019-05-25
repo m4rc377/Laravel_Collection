@@ -8,6 +8,7 @@ use App\Http\Requests;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Role;
 
 class UsersController extends Controller
 {
@@ -205,5 +206,29 @@ class UsersController extends Controller
         $is_profile = true;
 
         return view('pages.users.edit', compact('user', 'is_profile'));
+    }
+
+
+    public function getRole($id)
+    {
+        $user = User::findOrFail($id);
+
+        $roles = Role::all();
+
+        return view('pages.users.role', compact('user', 'roles'));
+    }
+
+
+    public function updateRole(Request $request, $id)
+    {
+        $this->validate($request, [
+            'role_id' => 'required'
+        ]);
+
+        $user = User::findOrFail($id);
+
+        $user->assignRole($request->role_id);
+
+        return redirect('admin/users')->with('flash_message', 'Role updated!');
     }
 }
