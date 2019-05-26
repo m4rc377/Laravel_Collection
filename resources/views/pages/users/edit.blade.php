@@ -1,22 +1,20 @@
 @extends('layout.app')
 
-@section('title', isset($is_profile)? ' | Edit My Profile' : ' | Edit user')
+@section('title', ' | Edit user')
 
 @section('content')
 
 
     <section class="content-header">
         <h1>
-            @if(isset($is_profile)) Edit My profile @else Edit user #{{ $user->id }} @endif
+            Edit user #{{ $user->id }}
         </h1>
 
-        @if(!isset($is_profile))
-            <ol class="breadcrumb">
-                <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-                <li><a href="{{ url('/admin/users') }}"> Users </a></li>
-                <li class="active">Edit</li>
-            </ol>
-        @endif
+        <ol class="breadcrumb">
+            <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+            <li><a href="{{ url('/admin/users') }}"> Users </a></li>
+            <li class="active">Edit</li>
+        </ol>
     </section>
 
     <section class="content">
@@ -25,12 +23,10 @@
                 <div class="card">
                     <div class="card-body">
 
-                        @if(!isset($is_profile))
                             <a href="{{ url('/admin/users') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
 
                             <br />
                             <br />
-                        @endif
 
                         @if ($errors->any())
                             <ul class="alert alert-danger">

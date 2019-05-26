@@ -23,6 +23,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::get('/my-profile/edit', 'UsersController@getEditProfile');
 
+    Route::patch('/my-profile/edit', 'UsersController@postEditProfile');
+
     Route::resource('/permissions', 'PermissionsController');
 
     Route::resource('/roles', 'RolesController');

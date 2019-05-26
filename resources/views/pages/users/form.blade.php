@@ -25,6 +25,11 @@
     <input class="form-control" name="phone" type="text" id="phone" value="{{ isset($user->phone) ? $user->phone : ''}}" >
     {!! $errors->first('phone', '<p class="help-block">:message</p>') !!}
 </div>
+
+@if(isset($user->image) && !empty($user->image))
+    <img src="{{ url('uploads/users/' . $user->image) }}" width="200" height="180"/>
+@endif
+
 <div class="form-group {{ $errors->has('image') ? 'has-error' : ''}}">
     <label for="image" class="control-label">{{ 'Image' }}</label>
     <input class="form-control" name="image" type="file" id="image" >
@@ -40,8 +45,6 @@
         {!! $errors->first('is_active', '<p class="help-block">:message</p>') !!}
     </div>
 @endif
-
-<input type="hidden" name="is_profile" value="{{ isset($is_profile)?1:0 }}" />
 
 <div class="form-group">
     <input class="btn btn-primary" type="submit" value="{{ $formMode === 'edit' ? 'Update' : 'Create' }}">

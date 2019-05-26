@@ -1,21 +1,19 @@
 @extends('layout.app')
 
-@section('title', isset($is_profile)? ' | My Profile' : ' | Show user')
+@section('title', ' | Show user')
 
 @section('content')
 
     <section class="content-header">
         <h1>
-            @if(isset($is_profile)) My profile @else user #{{ $user->id }} @endif
+            user #{{ $user->id }}
         </h1>
 
-        @if(!isset($is_profile))
-            <ol class="breadcrumb">
-                <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-                <li><a href="{{ url('/admin/users') }}"> Users </a></li>
-                <li class="active">Show</li>
-            </ol>
-        @endif
+        <ol class="breadcrumb">
+            <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
+            <li><a href="{{ url('/admin/users') }}"> Users </a></li>
+            <li class="active">Show</li>
+        </ol>
     </section>
 
 
@@ -27,17 +25,15 @@
 
                         @include('includes.flash_message')
 
-                        @if(!isset($is_profile))
-                             <a href="{{ url('/admin/users') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
-                        @endif
+                        <a href="{{ url('/admin/users') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
 
-                        <a href="@if(!isset($is_profile)) {{ url('/admin/users/' . $user->id . '/edit') }} @else {{ url('/admin/my-profile/edit') }} @endif" title="Edit user"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
+                        <a href="{{ url('/admin/users/' . $user->id . '/edit') }}" title="Edit user"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
 
-                        @if(!isset($is_profile) && $user->is_admin == 0)
+                        @if($user->is_admin == 0)
                             <form method="POST" action="{{ url('admin/users' . '/' . $user->id) }}" accept-charset="UTF-8" style="display:inline">
                                 {{ method_field('DELETE') }}
                                 {{ csrf_field() }}
-                                <button type="submit" class="btn btn-danger btn-sm" title="Delete user" onclick="return confirm(&quot;Confirm delete?&quot;)"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                                <button type="submit" class="btn btn-danger btn-sm" title="Delete user" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                             </form>
                         @endif
                         <br/>
@@ -55,20 +51,15 @@
                                         </tr>
                                     @endif
 
-                                    @if(!isset($is_profile))
-                                        <tr>
-                                            <th>ID</th><td>{{ $user->id }}</td>
-                                        </tr>
-                                    @endif
+                                    <tr>
+                                        <th>ID</th><td>{{ $user->id }}</td>
+                                    </tr>
                                     <tr><th> Name </th><td> {{ $user->name }} </td>
                                     </tr><tr><th> Email </th><td> {{ $user->email }} </td></tr>
                                     <tr><th> Position Title </th><td> {{ $user->position_title }} </td></tr>
                                     <tr><th> Phone </th><td> {{ $user->phone }} </td></tr>
-
-                                    @if(!isset($is_profile))
-                                        <tr><th> Is Admin </th><td> {!! $user->is_admin == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-times"></i>' !!} </td></tr>
-                                        <tr><th> Is Active </th><td> {!! $user->is_active == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-ban"></i>' !!} </td></tr>
-                                    @endif
+                                    <tr><th> Is Admin </th><td> {!! $user->is_admin == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-times"></i>' !!} </td></tr>
+                                    <tr><th> Is Active </th><td> {!! $user->is_active == 1? '<i class="fa fa-check"></i>':'<i class="fa fa-ban"></i>' !!} </td></tr>
                                 </tbody>
                             </table>
                         </div>

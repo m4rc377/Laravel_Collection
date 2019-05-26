@@ -11,7 +11,7 @@ return [
     'initial_permissions' => [
         'create_contact', 'edit_contact', 'delete_contact', 'list_contacts', 'view_contact',
         'create_document', 'edit_document', 'delete_document', 'list_documents', 'view_document',
-        'create_task', 'edit_task', 'delete_task', 'list_tasks', 'view_task',
-        'create_user', 'edit_user', 'delete_user', 'list_users', 'view_user', 'assign_user_role'
-    ]
+        'create_task', 'edit_task', 'delete_task', 'list_tasks', 'view_task', 'edit_profile'
+    ],
+    'default_role' => 'administrator'
 ];

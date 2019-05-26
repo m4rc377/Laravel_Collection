@@ -16,7 +16,7 @@ class UsersController extends Controller
 
     public function __construct(MailerFactory $mailer)
     {
-        $this->middleware('admin');
+        $this->middleware('admin', ['except' => ['getProfile', 'getEditProfile', 'postEditProfile']]);
 
         $this->mailer = $mailer;
     }
@@ -133,9 +133,7 @@ class UsersController extends Controller
             'image' => 'image|mimes:jpeg,png,jpg,gif'
 		]);
 
-        $is_profile = $request->is_profile;
-
-        $requestData = $request->except(['is_profile', '_token']);
+        $requestData = $request->except(['_token']);
 
         if ($request->hasFile('image')) {
             $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
@@ -151,7 +149,7 @@ class UsersController extends Controller
 
 
         // send notification email
-        if(!$is_profile && $user->is_admin == 0) {
+        if($user->is_admin == 0) {
 
             if($user->is_active == 1) {
                 $subject = "Your mini crm account have been activated";
@@ -162,11 +160,7 @@ class UsersController extends Controller
             $this->mailer->sendActivateBannedEmail($subject, $user);
         }
 
-        if(!$is_profile) {
-            return redirect('admin/users')->with('flash_message', 'User updated!');
-        } else {
-            return redirect('admin/my-profile')->with('flash_message', 'User updated!');
-        }
+        return redirect('admin/users')->with('flash_message', 'User updated!');
     }
 
     /**
@@ -194,20 +188,43 @@ class UsersController extends Controller
     {
         $user = User::findOrFail(Auth::user()->id);
 
-        $is_profile = true;
-
-        return view('pages.users.show', compact('user', 'is_profile'));
+        return view('pages.users.profile.view', compact('user'));
     }
 
     public function getEditProfile()
     {
         $user = User::findOrFail(Auth::user()->id);
 
-        $is_profile = true;
-
-        return view('pages.users.edit', compact('user', 'is_profile'));
+        return view('pages.users.profile.edit', compact('user'));
     }
 
+    public function postEditProfile(Request $request)
+    {
+        $id = Auth::user()->id;
+
+        $this->validate($request, [
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,' . $id,
+            'image' => 'image|mimes:jpeg,png,jpg,gif'
+        ]);
+
+        $requestData = $request->except(['_token']);
+
+        if ($request->hasFile('image')) {
+            $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
+        }
+
+        if(!empty($requestData['password'])) {
+
+            $requestData['password'] = bcrypt($requestData['password']);
+        }
+
+        $user = User::findOrFail($id);
+
+        $user->update($requestData);
+
+        return redirect('admin/my-profile')->with('flash_message', 'Profile updated!');
+    }
 
     public function getRole($id)
     {
