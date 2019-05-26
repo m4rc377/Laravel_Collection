@@ -16,7 +16,9 @@ class UsersController extends Controller
 
     public function __construct(AppMailer $mailer)
     {
-        $this->middleware('admin');
+        //$this->middleware('admin');
+
+        $this->middleware('permission:list_users', ['only' => ['index']]);
 
         $this->mailer = $mailer;
     }
