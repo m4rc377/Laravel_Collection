@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\AppMailer;
+use App\Helpers\MailerFactory;
 use App\Http\Requests;
 
 use App\User;
@@ -14,11 +14,9 @@ class UsersController extends Controller
 {
     protected $mailer;
 
-    public function __construct(AppMailer $mailer)
+    public function __construct(MailerFactory $mailer)
     {
-        //$this->middleware('admin');
-
-        $this->middleware('permission:list_users', ['only' => ['index']]);
+        $this->middleware('admin');
 
         $this->mailer = $mailer;
     }

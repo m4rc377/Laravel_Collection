@@ -24,7 +24,7 @@
                 </a>
             </li>
 
-            @if(\Auth::user()->is_admin == 1 || (\Auth()->user()->can('list_users')))
+            @if(\Auth::user()->is_admin == 1)
                 <li class="{{ in_array(Request::segment(2), ['users', 'permissions', 'roles'])?"active":"" }} treeview">
                     <a href="#">
                         <i class="fa fa-gears"></i> <span>System</span>
@@ -33,21 +33,16 @@
                         </span>
                     </a>
                     <ul class="treeview-menu">
+                        <li class="{{ Request::segment(2) == "users"?"active":"" }}">
+                            <a href="{{ url('/admin/users') }}"><i class="fa fa-user-o"></i> Users</a>
+                        </li>
 
-                        @if(\Auth()->user()->can('list_users'))
-                            <li class="{{ Request::segment(2) == "users"?"active":"" }}">
-                                <a href="{{ url('/admin/users') }}"><i class="fa fa-user-o"></i> Users</a>
-                            </li>
-                        @endif
-
-                        @if(\Auth::user()->is_admin == 1)
-                            <li class="{{ Request::segment(2) == "permissions"?"active":"" }}">
-                                <a href="{{ url('/admin/permissions') }}"><i class="fa fa-ban"></i> Permissions</a>
-                            </li>
-                            <li class="{{ Request::segment(2) == "roles"?"active":"" }}">
-                                <a href="{{ url('/admin/roles') }}"><i class="fa fa-list"></i> Roles</a>
-                            </li>
-                        @endif
+                        <li class="{{ Request::segment(2) == "permissions"?"active":"" }}">
+                            <a href="{{ url('/admin/permissions') }}"><i class="fa fa-ban"></i> Permissions</a>
+                        </li>
+                        <li class="{{ Request::segment(2) == "roles"?"active":"" }}">
+                            <a href="{{ url('/admin/roles') }}"><i class="fa fa-list"></i> Roles</a>
+                        </li>
                     </ul>
                 </li>
             @endif
