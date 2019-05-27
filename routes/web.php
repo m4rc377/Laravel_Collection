@@ -35,6 +35,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::resource('/contacts', 'ContactsController');
 
+    Route::resource('/documents', 'DocumentsController');
+
     Route::get('/forbidden/admin-only', function () {
         return view('pages.forbidden.admin_area');
     });
