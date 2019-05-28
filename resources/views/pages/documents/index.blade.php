@@ -40,14 +40,26 @@
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>#</th><th>Name</th><th>File</th><th>Status</th><th>Actions</th>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>File</th>
+                                    <th>Status</th>
+                                    <th>Created by</th>
+                                    <th>Created at</th>
+                                    <th>Assigned to</th>
+                                    <th>Actions</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                     @foreach($documents as $item)
                                         <tr>
                                             <td>{{ $item->id }}</td>
-                                            <td>{{ $item->name }}</td><td>{{ $item->file }}</td><td>{{ $item->status }}</td>
+                                            <td>{{ $item->name }}</td>
+                                            <td>@if(!empty($item->file)) <a href="{{ url('uploads/documents/' . $item->file) }}"> <i class="fa fa-download"></i> {{$item->file}}</a> @endif</td>
+                                            <td>{!! $item->status == 1?"<i class='label label-success'>Active</i>":"<i class='label label-danger'>Not active</i>" !!}</td>
+                                            <td>{{ $item->createdBy->name }}</td>
+                                            <td>{{ $item->created_at }}</td>
+                                            <td>{{ $item->assignedTo != null ? $item->assignedTo->name : "" }}</td>
                                             <td>
                                                 <a href="{{ url('/admin/documents/' . $item->id) }}" title="View document"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
                                                 <a href="{{ url('/admin/documents/' . $item->id . '/edit') }}" title="Edit document"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>

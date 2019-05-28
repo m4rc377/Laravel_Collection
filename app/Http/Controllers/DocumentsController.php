@@ -24,10 +24,18 @@ class DocumentsController extends Controller
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $documents = Document::latest()->paginate($perPage);
+            $query = Document::where('name', 'like', "%$keyword%");
         } else {
-            $documents = Document::latest()->paginate($perPage);
+            $query = Document::latest();
         }
+
+        // if not is admin user
+        if(Auth::user()->is_admin == 0) {
+
+            $query->where('assigned_user_id', Auth::user()->id);
+        }
+
+        $documents = $query->paginate($perPage);
 
         return view('pages.documents.index', compact('documents'));
     }
@@ -55,7 +63,7 @@ class DocumentsController extends Controller
      */
     public function store(Request $request)
     {
-        $this->do_validate($request, 0);
+        $this->do_validate($request);
         
         $requestData = $request->except(['_token']);
 
@@ -110,11 +118,18 @@ class DocumentsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $this->do_validate($request);
+        $this->do_validate($request, 0);
 
-        $requestData = $request->all();
+        $requestData = $request->except(['_token']);
+
+        if ($request->hasFile('file')) {
+            $requestData['file'] = uploadFile($request, 'file', public_path('uploads/documents'));
+        }
+
+        $requestData['modified_by_id'] = Auth::user()->id;
         
         $document = Document::findOrFail($id);
+
         $document->update($requestData);
 
         return redirect('admin/documents')->with('flash_message', 'Document updated!');

@@ -7,6 +7,9 @@
         </div>
     </div>
     <div class="col-md-6">
+        @if(isset($document->file) && !empty($document->file))
+            <a href="{{ url('uploads/documents/' . $document->file) }}"><i class="fa fa-download"></i> {{$document->file}}</a>
+        @endif
         <div class="form-group {{ $errors->has('file') ? 'has-error' : ''}}">
             <label for="file" class="control-label">{{ 'File' }}</label>
             <input class="form-control" name="file" type="file" id="file">
