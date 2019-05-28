@@ -6,6 +6,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Models\Document;
+use App\Models\DocumentType;
+use App\User;
 use Illuminate\Http\Request;
 
 class DocumentsController extends Controller
@@ -36,7 +38,11 @@ class DocumentsController extends Controller
      */
     public function create()
     {
-        return view('pages.documents.create');
+        $document_types = DocumentType::all();
+
+        $users = User::all();
+
+        return view('pages.documents.create', compact('document_types', 'users'));
     }
 
     /**
@@ -81,7 +87,11 @@ class DocumentsController extends Controller
     {
         $document = Document::findOrFail($id);
 
-        return view('pages.documents.edit', compact('document'));
+        $document_types = DocumentType::all();
+
+        $users = User::all();
+
+        return view('pages.documents.edit', compact('document', 'document_types', 'users'));
     }
 
     /**
