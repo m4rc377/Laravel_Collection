@@ -9,6 +9,7 @@ use App\Models\Document;
 use App\Models\DocumentType;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentsController extends Controller
 {
@@ -54,9 +55,14 @@ class DocumentsController extends Controller
      */
     public function store(Request $request)
     {
+        $this->do_validate($request, 0);
         
-        $requestData = $request->all();
-        
+        $requestData = $request->except(['_token']);
+
+        $requestData['file'] = uploadFile($request, 'file', public_path('uploads/documents'));
+
+        $requestData['created_by_id'] = Auth::user()->id;
+
         Document::create($requestData);
 
         return redirect('admin/documents')->with('flash_message', 'Document added!');
@@ -104,7 +110,8 @@ class DocumentsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+        $this->do_validate($request);
+
         $requestData = $request->all();
         
         $document = Document::findOrFail($id);
@@ -125,5 +132,15 @@ class DocumentsController extends Controller
         Document::destroy($id);
 
         return redirect('admin/documents')->with('flash_message', 'Document deleted!');
+    }
+
+    protected function do_validate($request, $is_create = 1)
+    {
+        $mimes = 'mimes:jpg,jpeg,png,gif,pdf,doc,docx,txt,xls,xlsx,odt,dot,html,htm,rtf,ods,xlt,csv,bmp,odp,pptx,ppsx,ppt,potm';
+
+        $this->validate($request, [
+            'name' => 'required',
+            'file' => ($is_create == 0? $mimes:"required|" . $mimes)
+        ]);
     }
 }

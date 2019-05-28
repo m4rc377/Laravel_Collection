@@ -19,8 +19,8 @@ class CreateDocumentTable extends Migration
             $table->string('file');
             $table->tinyInteger('status')->default(1)->comment('1=active 2=not active');
             $table->integer('type')->unsigned()->nullable();
-            $table->date('publish_date')->nullable();
-            $table->date('expiration_date')->nullable();
+            $table->string('publish_date')->nullable();
+            $table->string('expiration_date')->nullable();
             $table->integer('created_by_id')->unsigned();
             $table->integer('modified_by_id')->unsigned()->nullable();
             $table->integer('assigned_user_id')->unsigned();
