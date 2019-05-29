@@ -6,6 +6,8 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Models\Contact;
+use App\Models\ContactStatus;
+use App\User;
 use Illuminate\Http\Request;
 
 class ContactsController extends Controller
@@ -36,7 +38,11 @@ class ContactsController extends Controller
      */
     public function create()
     {
-        return view('pages.contacts.create');
+        $statuses = ContactStatus::all();
+
+        $users = User::all();
+
+        return view('pages.contacts.create', compact('statuses', 'users'));
     }
 
     /**
