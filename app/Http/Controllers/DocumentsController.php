@@ -82,7 +82,7 @@ class DocumentsController extends Controller
 
         $document = Document::create($requestData);
 
-        if(getSetting("enable_email_notification") == 1) {
+        if(isset($requestData['assigned_user_id']) && getSetting("enable_email_notification") == 1) {
 
             $this->mailer->sendAssignDocumentEmail("Document assigned to you", User::find($requestData['assigned_user_id']), $document);
         }
@@ -146,7 +146,7 @@ class DocumentsController extends Controller
 
         $document->update($requestData);
 
-        if(getSetting("enable_email_notification") == 1) {
+        if(isset($requestData['assigned_user_id']) && getSetting("enable_email_notification") == 1) {
 
             $this->mailer->sendAssignDocumentEmail("Document assigned to you", User::find($requestData['assigned_user_id']), $document);
         }

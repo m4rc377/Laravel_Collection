@@ -59,16 +59,20 @@
         </div>
     </div>
 </div>
-<div class="form-group {{ $errors->has('assigned_user_id') ? 'has-error' : ''}}">
-    <label for="assigned_user_id" class="control-label">{{ 'Assigned User' }}</label>
-    <select name="assigned_user_id" id="assigned_user_id" class="form-control">
-        @foreach($users as $user)
-            <option value="{{ $user->id }}" {{ isset($document->assigned_user_id) && $document->assigned_user_id == $user->id?"selected":"" }}>{{ $user->name }}</option>
-        @endforeach
-    </select>
 
-    {!! $errors->first('assigned_user_id', '<p class="help-block">:message</p>') !!}
-</div>
+
+@if(\Auth::user()->is_admin == 1)
+    <div class="form-group {{ $errors->has('assigned_user_id') ? 'has-error' : ''}}">
+        <label for="assigned_user_id" class="control-label">{{ 'Assigned User' }}</label>
+        <select name="assigned_user_id" id="assigned_user_id" class="form-control">
+            @foreach($users as $user)
+                <option value="{{ $user->id }}" {{ isset($document->assigned_user_id) && $document->assigned_user_id == $user->id?"selected":"" }}>{{ $user->name }}</option>
+            @endforeach
+        </select>
+
+        {!! $errors->first('assigned_user_id', '<p class="help-block">:message</p>') !!}
+    </div>
+@endif
 
 
 <div class="form-group">
