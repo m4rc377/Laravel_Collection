@@ -19,9 +19,12 @@
             <div class="col-md-12">
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ url('/admin/documents/create') }}" class="btn btn-success btn-sm pull-right" title="Add New document">
-                            <i class="fa fa-plus" aria-hidden="true"></i> Add New
-                        </a>
+
+                        @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('create_document'))
+                            <a href="{{ url('/admin/documents/create') }}" class="btn btn-success btn-sm pull-right" title="Add New document">
+                                <i class="fa fa-plus" aria-hidden="true"></i> Add New
+                            </a>
+                        @endif
 
                         <form method="GET" action="{{ url('/admin/documents') }}" accept-charset="UTF-8" class="form-inline my-2 my-lg-0" role="search">
                             <div class="input-group">
@@ -44,9 +47,11 @@
                                     <th>Name</th>
                                     <th>File</th>
                                     <th>Status</th>
-                                    <th>Created by</th>
                                     <th>Created at</th>
-                                    <th>Assigned to</th>
+                                    @if(\Auth::user()->is_admin == 1)
+                                        <th>Created by</th>
+                                        <th>Assigned to</th>
+                                    @endif
                                     <th>Actions</th>
                                 </tr>
                                 </thead>
@@ -57,18 +62,28 @@
                                             <td>{{ $item->name }}</td>
                                             <td>@if(!empty($item->file)) <a href="{{ url('uploads/documents/' . $item->file) }}"> <i class="fa fa-download"></i> {{$item->file}}</a> @endif</td>
                                             <td>{!! $item->status == 1?"<i class='label label-success'>Active</i>":"<i class='label label-danger'>Not active</i>" !!}</td>
-                                            <td>{{ $item->createdBy->name }}</td>
                                             <td>{{ $item->created_at }}</td>
-                                            <td>{{ $item->assignedTo != null ? $item->assignedTo->name : "" }}</td>
+                                            @if(\Auth::user()->is_admin == 1)
+                                                <td>{{ $item->createdBy->name }}</td>
+                                                <td>{{ $item->assignedTo != null ? $item->assignedTo->name : "" }}</td>
+                                            @endif
                                             <td>
-                                                <a href="{{ url('/admin/documents/' . $item->id) }}" title="View document"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
-                                                <a href="{{ url('/admin/documents/' . $item->id . '/edit') }}" title="Edit document"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
 
-                                                <form method="POST" action="{{ url('/admin/documents' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">
-                                                    {{ method_field('DELETE') }}
-                                                    {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete document" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
-                                                </form>
+                                                @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('view_document'))
+                                                    <a href="{{ url('/admin/documents/' . $item->id) }}" title="View document"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
+                                                @endif
+
+                                                @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('edit_document'))
+                                                    <a href="{{ url('/admin/documents/' . $item->id . '/edit') }}" title="Edit document"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
+                                                @endif
+
+                                                @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('delete_document'))
+                                                    <form method="POST" action="{{ url('/admin/documents' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">
+                                                        {{ method_field('DELETE') }}
+                                                        {{ csrf_field() }}
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Delete document" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                                                    </form>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

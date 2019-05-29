@@ -59,5 +59,5 @@ function addSetting($key, $value)
  */
 function getSetting($key)
 {
-    return Setting::where('setting_key', $key)->first()->setting_value;
+    return ($setting = Setting::where('setting_key', $key)->first()) != null ? $setting->setting_value:null;
 }

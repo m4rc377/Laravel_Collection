@@ -47,3 +47,11 @@
         </div>
     </section>
 @endsection
+
+@section('scripts')
+    <script>
+        $(document).ready(function (e) {
+            $("#publish_date, #expiration_date").datepicker();
+        });
+    </script>
+@endsection

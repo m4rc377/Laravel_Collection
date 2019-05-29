@@ -2,9 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
+use App\Helpers\MailerFactory;
 use App\Models\Document;
 use App\Models\DocumentType;
 use App\User;
@@ -13,6 +11,17 @@ use Illuminate\Support\Facades\Auth;
 
 class DocumentsController extends Controller
 {
+
+    protected $mailer;
+
+    public function __construct(MailerFactory $mailer)
+    {
+        $this->middleware('admin:index-list_documents|create-create_document|show-view_document|edit-edit_document|destroy-delete_document', ['except' => ['store', 'update']]);
+
+        $this->mailer = $mailer;
+    }
+
+
     /**
      * Display a listing of the resource.
      *
@@ -71,7 +80,12 @@ class DocumentsController extends Controller
 
         $requestData['created_by_id'] = Auth::user()->id;
 
-        Document::create($requestData);
+        $document = Document::create($requestData);
+
+        if(getSetting("enable_email_notification") == 1) {
+
+            $this->mailer->sendAssignDocumentEmail("Document assigned to you", User::find($requestData['assigned_user_id']), $document);
+        }
 
         return redirect('admin/documents')->with('flash_message', 'Document added!');
     }
@@ -131,6 +145,11 @@ class DocumentsController extends Controller
         $document = Document::findOrFail($id);
 
         $document->update($requestData);
+
+        if(getSetting("enable_email_notification") == 1) {
+
+            $this->mailer->sendAssignDocumentEmail("Document assigned to you", User::find($requestData['assigned_user_id']), $document);
+        }
 
         return redirect('admin/documents')->with('flash_message', 'Document updated!');
     }

@@ -7,7 +7,7 @@ return [
     'task_statuses' => ['Not Started', 'Started', 'Completed', 'Cancelled'],
     'task_types' => ['Task', 'Meeting', 'Phone call'],
     'contact_status' => ['Lead', 'Opportunity', 'Customer', 'Close'],
-    'settings' => ['crm_email' => 'noreply@mini-crm.com'],
+    'settings' => ['crm_email' => 'noreply@mini-crm.com', 'enable_email_notification' => 1],
     'initial_permissions' => [
         'create_contact', 'edit_contact', 'delete_contact', 'list_contacts', 'view_contact',
         'create_document', 'edit_document', 'delete_document', 'list_documents', 'view_document',

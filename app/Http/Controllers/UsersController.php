@@ -149,7 +149,7 @@ class UsersController extends Controller
 
 
         // send notification email
-        if($user->is_admin == 0) {
+        if($user->is_admin == 0 && getSetting("enable_email_notification") == 1) {
 
             if($user->is_active == 1) {
                 $subject = "Your mini crm account have been activated";
@@ -246,8 +246,10 @@ class UsersController extends Controller
 
         $user->syncRoles($request->role_id);
 
-        // send notify email
-        $this->mailer->sendUpdateRoleEmail("Your mini crm account have updated role", $user);
+        if(getSetting("enable_email_notification") == 1) {
+            // send notify email
+            $this->mailer->sendUpdateRoleEmail("Your mini crm account have updated role", $user);
+        }
 
         return redirect('admin/users')->with('flash_message', 'Role updated!');
     }

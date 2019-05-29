@@ -67,4 +67,19 @@ class MailerFactory
             die("Mailer Factory error: " . $ex->getMessage());
         }
     }
+
+
+    public function sendAssignDocumentEmail($subject, $user, $document)
+    {
+        try {
+            $this->mailer->send("emails.assign_document", ['user' => $user, 'document' => $document, 'subject' => $subject], function($message) use ($subject, $user) {
+
+                $message->from($this->fromAddress, $this->fromName)
+                    ->to($user->email)->subject($subject);
+
+            });
+        } catch (\Exception $ex) {
+            die("Mailer Factory error: " . $ex->getMessage());
+        }
+    }
 }
