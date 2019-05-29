@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', ' | List Contacts')
+
 @section('content')
 
     <section class="content-header">

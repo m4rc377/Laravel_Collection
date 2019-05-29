@@ -28,25 +28,30 @@
     <input class="form-control" name="position_title" type="text" id="position_title" value="{{ isset($contact->position_title) ? $contact->position_title : ''}}" >
     {!! $errors->first('position_title', '<p class="help-block">:message</p>') !!}
 </div>
-<div class="form-group {{ $errors->has('industry') ? 'has-error' : ''}}">
-    <label for="industry" class="control-label">{{ 'Industry' }}</label>
-    <input class="form-control" name="industry" type="text" id="industry" value="{{ isset($contact->industry) ? $contact->industry : ''}}" >
-    {!! $errors->first('industry', '<p class="help-block">:message</p>') !!}
+<div class="form-group {{ $errors->has('inductry') ? 'has-error' : ''}}">
+    <label for="inductry" class="control-label">{{ 'Inductry' }}</label>
+    <input class="form-control" name="inductry" type="text" id="inductry" value="{{ isset($contact->inductry) ? $contact->inductry : ''}}" >
+    {!! $errors->first('inductry', '<p class="help-block">:message</p>') !!}
 </div>
 <div class="form-group {{ $errors->has('project_type') ? 'has-error' : ''}}">
     <label for="project_type" class="control-label">{{ 'Project Type' }}</label>
     <input class="form-control" name="project_type" type="text" id="project_type" value="{{ isset($contact->project_type) ? $contact->project_type : ''}}" >
     {!! $errors->first('project_type', '<p class="help-block">:message</p>') !!}
 </div>
-<div class="form-group {{ $errors->has('company_id') ? 'has-error' : ''}}">
-    <label for="company_id" class="control-label">{{ 'Company Id' }}</label>
-    <input class="form-control" name="company_id" type="text" id="company_id" value="{{ isset($contact->company_id) ? $contact->company_id : ''}}" >
-    {!! $errors->first('company_id', '<p class="help-block">:message</p>') !!}
-</div>
 <div class="form-group {{ $errors->has('project_description') ? 'has-error' : ''}}">
     <label for="project_description" class="control-label">{{ 'Project Description' }}</label>
-    <textarea class="form-control" rows="5" name="project_description" type="textarea" id="project_description" >{{ isset($contact->project_description) ? $contact->project_description : ''}}</textarea>
+    <input class="form-control" name="project_description" type="text" id="project_description" value="{{ isset($contact->project_description) ? $contact->project_description : ''}}" >
     {!! $errors->first('project_description', '<p class="help-block">:message</p>') !!}
+</div>
+<div class="form-group {{ $errors->has('company') ? 'has-error' : ''}}">
+    <label for="company" class="control-label">{{ 'Company' }}</label>
+    <input class="form-control" name="company" type="text" id="company" value="{{ isset($contact->company) ? $contact->company : ''}}" >
+    {!! $errors->first('company', '<p class="help-block">:message</p>') !!}
+</div>
+<div class="form-group {{ $errors->has('description') ? 'has-error' : ''}}">
+    <label for="description" class="control-label">{{ 'Description' }}</label>
+    <input class="form-control" name="description" type="text" id="description" value="{{ isset($contact->description) ? $contact->description : ''}}" >
+    {!! $errors->first('description', '<p class="help-block">:message</p>') !!}
 </div>
 <div class="form-group {{ $errors->has('budget') ? 'has-error' : ''}}">
     <label for="budget" class="control-label">{{ 'Budget' }}</label>

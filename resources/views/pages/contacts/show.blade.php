@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', ' | Show contact')
+
 @section('content')
 
     <section class="content-header">
@@ -8,7 +10,7 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-            <li class="{{ url('/admin/contacts') }}">Contacts</li>
+            <li><a href="{{ url('/admin/contacts') }}">Contacts</a></li>
             <li class="active">Show</li>
         </ol>
     </section>
@@ -26,7 +28,7 @@
                         <form method="POST" action="{{ url('admin/contacts' . '/' . $contact->id) }}" accept-charset="UTF-8" style="display:inline">
                             {{ method_field('DELETE') }}
                             {{ csrf_field() }}
-                            <button type="submit" class="btn btn-danger btn-sm" title="Delete contact" onclick="return confirm(&quot;Confirm delete?&quot;)"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                            <button type="submit" class="btn btn-danger btn-sm" title="Delete contact" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
                         </form>
                         <br/>
                         <br/>

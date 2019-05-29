@@ -1,5 +1,7 @@
 @extends('layout.app')
 
+@section('title', ' | Create contact')
+
 @section('content')
 
     <section class="content-header">
@@ -8,7 +10,7 @@
         </h1>
         <ol class="breadcrumb">
             <li><a href="{{ url('/admin/') }}"><i class="fa fa-dashboard"></i> Dashboard</a></li>
-            <li class="{{ url('/admin/contacts') }}">Contacts</li>
+            <li><a href="{{ url('/admin/contacts') }}">Contacts</a></li>
             <li class="active">Create</li>
         </ol>
     </section>
