@@ -2,9 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests;
-use App\Http\Controllers\Controller;
-
 use App\Models\Contact;
 use App\Models\ContactDocument;
 use App\Models\ContactEmail;
@@ -17,6 +14,13 @@ use Illuminate\Support\Facades\Auth;
 
 class ContactsController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware('admin:index-list_contacts|create-create_contact|show-view_contact|edit-edit_contact|destroy-delete_contact', ['except' => ['store', 'update']]);
+    }
+
+
     /**
      * Display a listing of the resource.
      *
@@ -28,7 +32,7 @@ class ContactsController extends Controller
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $contacts = Contact::latest()->paginate($perPage);
+            $contacts = Contact::where('first_name', 'like', "%$keyword%")->orWhere('middle_name', 'like', "%$keyword%")->orWhere('last_name', 'like', "%$keyword%")->paginate($perPage);
         } else {
             $contacts = Contact::latest()->paginate($perPage);
         }
