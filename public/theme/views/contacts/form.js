@@ -22,4 +22,6 @@ $(function () {
 
         $("#phones-wrapper").append(clone);
     });
+
+    $("#documents").select2();
 });

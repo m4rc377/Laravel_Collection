@@ -31,6 +31,9 @@
 <script src="{{ url('theme') . '/plugins/' }}/iCheck/icheck.min.js"></script>
 <!-- FastClick -->
 <script src="{{ url('theme') . '/bower_components/' }}fastclick/lib/fastclick.js"></script>
+
+<!-- Select2 -->
+<script src="{{ url('theme') . '/bower_components/' }}/select2/dist/js/select2.js"></script>
 <!-- AdminLTE App -->
 <script src="{{ url('theme') . '/dist/' }}/js/adminlte.min.js"></script>
 <!-- AdminLTE dashboard demo (This is only for demo purposes) -->

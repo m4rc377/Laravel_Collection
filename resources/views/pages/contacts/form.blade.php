@@ -198,6 +198,17 @@
     </div>
 </div>
 
+<div class="form-group">
+    <label for="documents" class="control-label">{{ 'Documents' }} <i class="fa fa-link"></i></label>
+    <select name="documents[]" id="documents" multiple class="form-control">
+        @foreach($documents as $document)
+            <option value="{{ $document->id }}">{{ $document->name }}</option>
+        @endforeach
+    </select>
+
+    {!! $errors->first('assigned_user_id', '<p class="help-block">:message</p>') !!}
+</div>
+
 @if(\Auth::user()->is_admin == 1)
     <div class="form-group {{ $errors->has('assigned_user_id') ? 'has-error' : ''}}">
         <label for="assigned_user_id" class="control-label">{{ 'Assigned User' }}</label>

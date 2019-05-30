@@ -20,6 +20,8 @@
                 <div class="card">
                     <div class="card-body">
 
+                        @include('includes.flash_message')
+
                         @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('create_document'))
                             <a href="{{ url('/admin/documents/create') }}" class="btn btn-success btn-sm pull-right" title="Add New document">
                                 <i class="fa fa-plus" aria-hidden="true"></i> Add New

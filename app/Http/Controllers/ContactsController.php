@@ -6,9 +6,11 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Models\Contact;
+use App\Models\ContactDocument;
 use App\Models\ContactEmail;
 use App\Models\ContactPhone;
 use App\Models\ContactStatus;
+use App\Models\Document;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -45,7 +47,9 @@ class ContactsController extends Controller
 
         $users = User::all();
 
-        return view('pages.contacts.create', compact('statuses', 'users'));
+        $documents = Document::all();
+
+        return view('pages.contacts.create', compact('statuses', 'users', 'documents'));
     }
 
     /**
@@ -67,6 +71,17 @@ class ContactsController extends Controller
 
         unset($requestData['emails'], $requestData['phones']);
 
+        if(isset($requestData['documents'])) {
+
+            $documents = $requestData['documents'];
+
+            unset($requestData['documents']);
+
+            $documents = array_filter($documents, function ($value) {
+                return !empty($value);
+            });
+        }
+
         $requestData['created_by_id'] = Auth::user()->id;
 
         $contact = Contact::create($requestData);
@@ -85,6 +100,11 @@ class ContactsController extends Controller
             $this->insertEmails($emails, $contact->id);
 
             $this->insertPhones($phones, $contact->id);
+
+            if(isset($documents)) {
+
+                $this->insertDocuments($documents, $contact->id);
+            }
         }
 
         return redirect('admin/contacts')->with('flash_message', 'Contact added!');
@@ -209,6 +229,28 @@ class ContactsController extends Controller
             $contactPhone->contact_id = $contact_id;
 
             $contactPhone->save();
+        }
+    }
+
+
+    /**
+     * insert documents
+     *
+     *
+     * @param $documents
+     * @param $contact_id
+     */
+    protected function insertDocuments($documents, $contact_id)
+    {
+        foreach ($documents as $document) {
+
+            $contactDocument = new ContactDocument();
+
+            $contactDocument->document_id = $document;
+
+            $contactDocument->contact_id = $contact_id;
+
+            $contactDocument->save();
         }
     }
 }
