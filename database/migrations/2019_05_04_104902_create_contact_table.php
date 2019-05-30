@@ -23,7 +23,7 @@ class CreateContactTable extends Migration
             $table->string('position_title')->nullable();
             $table->string('industry')->nullable();
             $table->string('project_type')->nullable();
-            $table->text('project_description');
+            $table->text('project_description')->nullable();
             $table->string('company')->nullable();
             $table->text('description')->nullable();
             $table->string('budget')->nullable();

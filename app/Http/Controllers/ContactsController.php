@@ -6,9 +6,12 @@ use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Models\Contact;
+use App\Models\ContactEmail;
+use App\Models\ContactPhone;
 use App\Models\ContactStatus;
 use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class ContactsController extends Controller
 {
@@ -54,10 +57,35 @@ class ContactsController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $this->do_validate($request);
+
         $requestData = $request->all();
-        
-        Contact::create($requestData);
+
+        $emails = $requestData['emails'];
+
+        $phones = $request['phones'];
+
+        unset($requestData['emails'], $requestData['phones']);
+
+        $requestData['created_by_id'] = Auth::user()->id;
+
+        $contact = Contact::create($requestData);
+
+        $emails = array_filter($emails, function ($value) {
+           return !empty($value);
+        });
+
+        $phones = array_filter($phones, function ($value) {
+            return !empty($value);
+        });
+
+        // insert emails & phones
+        if($contact && $contact->id) {
+
+            $this->insertEmails($emails, $contact->id);
+
+            $this->insertPhones($phones, $contact->id);
+        }
 
         return redirect('admin/contacts')->with('flash_message', 'Contact added!');
     }
@@ -104,6 +132,7 @@ class ContactsController extends Controller
         $requestData = $request->all();
         
         $contact = Contact::findOrFail($id);
+
         $contact->update($requestData);
 
         return redirect('admin/contacts')->with('flash_message', 'Contact updated!');
@@ -121,5 +150,65 @@ class ContactsController extends Controller
         Contact::destroy($id);
 
         return redirect('admin/contacts')->with('flash_message', 'Contact deleted!');
+    }
+
+
+    /**
+     * do_validate
+     *
+     *
+     * @param $request
+     */
+    protected function do_validate($request)
+    {
+        $this->validate($request, [
+            'first_name' => 'required',
+            'middle_name' => 'required',
+            'last_name' => 'required'
+        ]);
+    }
+
+
+    /**
+     * insert emails
+     *
+     *
+     * @param $emails
+     * @param $contact_id
+     */
+    protected function insertEmails($emails, $contact_id)
+    {
+        foreach ($emails as $email) {
+
+            $contactEmail = new ContactEmail();
+
+            $contactEmail->email = $email;
+
+            $contactEmail->contact_id = $contact_id;
+
+            $contactEmail->save();
+        }
+    }
+
+
+    /**
+     * insert phones
+     *
+     *
+     * @param $phones
+     * @param $contact_id
+     */
+    protected function insertPhones($phones, $contact_id)
+    {
+        foreach ($phones as $phone) {
+
+            $contactPhone = new ContactPhone();
+
+            $contactPhone->phone = $phone;
+
+            $contactPhone->contact_id = $contact_id;
+
+            $contactPhone->save();
+        }
     }
 }
