@@ -135,7 +135,15 @@ class ContactsController extends Controller
     {
         $contact = Contact::findOrFail($id);
 
-        return view('pages.contacts.edit', compact('contact'));
+        $statuses = ContactStatus::all();
+
+        $users = User::all();
+
+        $documents = Document::all();
+
+        $selected_documents = $contact->documents()->pluck('document_id')->toArray();
+
+        return view('pages.contacts.edit', compact('contact', 'statuses', 'users', 'documents', 'selected_documents'));
     }
 
     /**
@@ -148,12 +156,67 @@ class ContactsController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+        $this->do_validate($request);
+
         $requestData = $request->all();
-        
+
+        $emails = $requestData['emails'];
+
+        $phones = $request['phones'];
+
+        unset($requestData['emails'], $requestData['phones']);
+
+        $emails = array_filter($emails, function ($value) {
+            return !empty($value);
+        });
+
+        $phones = array_filter($phones, function ($value) {
+            return !empty($value);
+        });
+
+        if(isset($requestData['documents'])) {
+
+            $documents = $requestData['documents'];
+
+            unset($requestData['documents']);
+
+            $documents = array_filter($documents, function ($value) {
+                return !empty($value);
+            });
+        }
+
+        $requestData['modified_by_id'] = Auth::user()->id;
+
         $contact = Contact::findOrFail($id);
 
         $contact->update($requestData);
+
+        // delete emails if exist
+        ContactEmail::where('contact_id', $id)->delete();
+
+        if($emails) {
+
+            // insert
+            $this->insertEmails($emails, $id);
+        }
+
+        // delete phones if exist
+        ContactPhone::where('contact_id', $id)->delete();
+
+        if($phones) {
+
+            // insert
+            $this->insertPhones($phones, $id);
+        }
+
+        // delete documents if exist
+        ContactDocument::where('contact_id', $id)->delete();
+
+        if(isset($documents)) {
+
+            // insert
+            $this->insertDocuments($documents, $id);
+        }
 
         return redirect('admin/contacts')->with('flash_message', 'Contact updated!');
     }
