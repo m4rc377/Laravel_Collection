@@ -62,6 +62,40 @@
                     {!! $errors->first('industry', '<p class="help-block">:message</p>') !!}
                 </div>
             </div>
+            <div class="col-md-4">
+                <h4>Emails</h4>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div id="emails-wrapper">
+                            <div class="row" style="margin-top: 5px;">
+                                <div class="col-md-10">
+                                    <input type="text" name="emails[]" class="form-control" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="javascript:void(0)" id="new_email" class="btn btn-warning btn-sm" title="add new email"><i class="fa fa-plus"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <h4>Phones</h4>
+                <div class="row">
+                    <div class="col-md-10">
+                        <div id="phones-wrapper">
+                            <div class="row" style="margin-top: 5px;">
+                                <div class="col-md-10">
+                                    <input type="text" name="phones[]" class="form-control" value="" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <a href="javascript:void(0)" id="new_phone" class="btn btn-warning btn-sm" title="add new phone"><i class="fa fa-plus"></i></a>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 </div>

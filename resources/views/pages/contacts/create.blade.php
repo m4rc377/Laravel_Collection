@@ -45,3 +45,9 @@
         </div>
     </section>
 @endsection
+
+@section('scripts')
+
+    <script type="text/javascript" src="{{ url('theme/views/contacts/form.js') }}"></script>
+
+@stop
