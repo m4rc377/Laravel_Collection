@@ -24,7 +24,7 @@
                 </a>
             </li>
 
-            @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('list_contacts'))
+            @if(user_can('list_contacts'))
                 <li class="treeview {{ Request::segment(2) == 'contacts'? 'active':'' }}">
                     <a href="#">
                         <i class="fa fa-address-card"></i> <span>Accounts</span>
@@ -52,7 +52,7 @@
                 </li>
             @endif
 
-            @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('list_documents'))
+            @if(user_can('list_documents'))
                 <li class="{{ Request::segment(2) == "documents"?"active":"" }}">
                     <a href="{{ url('/admin/documents') }}">
                         <i class="fa fa-file-word-o"></i> <span>Documents</span>

@@ -22,7 +22,7 @@
 
                         @include('includes.flash_message')
 
-                        @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('create_document'))
+                        @if(user_can("create_document"))
                             <a href="{{ url('/admin/documents/create') }}" class="btn btn-success btn-sm pull-right" title="Add New document">
                                 <i class="fa fa-plus" aria-hidden="true"></i> Add New
                             </a>
@@ -45,7 +45,9 @@
                             <table class="table">
                                 <thead>
                                 <tr>
-                                    <th>#</th>
+                                    @if(\Auth::user()->is_admin == 1)
+                                        <th>#</th>
+                                    @endif
                                     <th>Name</th>
                                     <th>File</th>
                                     <th>Status</th>
@@ -60,7 +62,9 @@
                                 <tbody>
                                     @foreach($documents as $item)
                                         <tr>
-                                            <td>{{ $item->id }}</td>
+                                            @if(\Auth::user()->is_admin == 1)
+                                                <td>{{ $item->id }}</td>
+                                            @endif
                                             <td>{{ $item->name }}</td>
                                             <td>@if(!empty($item->file)) <a href="{{ url('uploads/documents/' . $item->file) }}"> <i class="fa fa-download"></i> {{$item->file}}</a> @endif</td>
                                             <td>{!! $item->status == 1?"<i class='label label-success'>Active</i>":"<i class='label label-danger'>Not active</i>" !!}</td>
@@ -71,15 +75,15 @@
                                             @endif
                                             <td>
 
-                                                @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('view_document'))
+                                                @if(user_can('view_document'))
                                                     <a href="{{ url('/admin/documents/' . $item->id) }}" title="View document"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
                                                 @endif
 
-                                                @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('edit_document'))
+                                                @if(user_can('edit_document'))
                                                     <a href="{{ url('/admin/documents/' . $item->id . '/edit') }}" title="Edit document"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
                                                 @endif
 
-                                                @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('delete_document'))
+                                                @if(user_can('delete_document'))
                                                     <form method="POST" action="{{ url('/admin/documents' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">
                                                         {{ method_field('DELETE') }}
                                                         {{ csrf_field() }}

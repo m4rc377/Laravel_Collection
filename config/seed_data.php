@@ -8,10 +8,9 @@ return [
     'task_types' => ['Task', 'Meeting', 'Phone call'],
     'contact_status' => ['Lead', 'Opportunity', 'Customer', 'Close'],
     'settings' => ['crm_email' => 'noreply@mini-crm.com', 'enable_email_notification' => 1],
-    'initial_permissions' => [
-        'create_contact', 'edit_contact', 'delete_contact', 'list_contacts', 'view_contact',
+    'permissions' => [
+        'create_contact', 'edit_contact', 'delete_contact', 'list_contacts', 'view_contact', 'assign_contact',
         'create_document', 'edit_document', 'delete_document', 'list_documents', 'view_document',
         'create_task', 'edit_task', 'delete_task', 'list_tasks', 'view_task', 'edit_profile'
-    ],
-    'default_role' => 'administrator'
+    ]
 ];

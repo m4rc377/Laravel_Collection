@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\MailerFactory;
 use App\Models\Contact;
 use App\Models\ContactDocument;
 use App\Models\ContactEmail;
@@ -15,9 +16,13 @@ use Illuminate\Support\Facades\Auth;
 class ContactsController extends Controller
 {
 
-    public function __construct()
+    protected $mailer;
+
+    public function __construct(MailerFactory $mailer)
     {
-        $this->middleware('admin:index-list_contacts|create-create_contact|show-view_contact|edit-edit_contact|destroy-delete_contact', ['except' => ['store', 'update']]);
+        $this->middleware('admin:index-list_contacts|create-create_contact|show-view_contact|edit-edit_contact|destroy-delete_contact|getAssignContact-assign_contact', ['except' => ['store', 'update', 'postAssignContact']]);
+
+        $this->mailer = $mailer;
     }
 
 
@@ -32,10 +37,22 @@ class ContactsController extends Controller
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $contacts = Contact::where('first_name', 'like', "%$keyword%")->orWhere('middle_name', 'like', "%$keyword%")->orWhere('last_name', 'like', "%$keyword%")->paginate($perPage);
+            $query = Contact::where('first_name', 'like', "%$keyword%")->orWhere('middle_name', 'like', "%$keyword%")->orWhere('last_name', 'like', "%$keyword%");
         } else {
-            $contacts = Contact::latest()->paginate($perPage);
+            $query = Contact::latest();
         }
+
+        if(\request('status_name') != null) {
+            $query->where('status', '=', ContactStatus::where('name', \request('status_name'))->first()->id);
+        }
+
+        // if not is admin user
+        if(Auth::user()->is_admin == 0) {
+
+            $query->where('assigned_user_id', Auth::user()->id);
+        }
+
+        $contacts = $query->paginate($perPage);
 
         return view('pages.contacts.index', compact('contacts'));
     }
@@ -49,9 +66,9 @@ class ContactsController extends Controller
     {
         $statuses = ContactStatus::all();
 
-        $users = User::all();
+        $users = User::where('is_active', 1)->get();
 
-        $documents = Document::all();
+        $documents = Document::where('status', 1)->get();
 
         return view('pages.contacts.create', compact('statuses', 'users', 'documents'));
     }
@@ -111,6 +128,12 @@ class ContactsController extends Controller
             }
         }
 
+        // send notifications email
+        if(getSetting("enable_email_notification") == 1 && isset($requestData['assigned_user_id'])) {
+
+            $this->mailer->sendAssignContactEmail("Contact assigned to you", User::find($requestData['assigned_user_id']), $contact);
+        }
+
         return redirect('admin/contacts')->with('flash_message', 'Contact added!');
     }
 
@@ -141,9 +164,9 @@ class ContactsController extends Controller
 
         $statuses = ContactStatus::all();
 
-        $users = User::all();
+        $users = User::where('is_active', 1)->get();
 
-        $documents = Document::all();
+        $documents = Document::where('status', 1)->get();
 
         $selected_documents = $contact->documents()->pluck('document_id')->toArray();
 
@@ -193,6 +216,10 @@ class ContactsController extends Controller
 
         $contact = Contact::findOrFail($id);
 
+        $old_assign_user_id = $contact->assigned_user_id;
+
+        $old_contact_status = $contact->status;
+
         $contact->update($requestData);
 
         // delete emails if exist
@@ -222,6 +249,30 @@ class ContactsController extends Controller
             $this->insertDocuments($documents, $id);
         }
 
+        // send notifications email
+        if(getSetting("enable_email_notification") == 1) {
+
+            if (isset($requestData['assigned_user_id']) && $old_assign_user_id != $requestData['assigned_user_id']) {
+
+                $this->mailer->sendAssignContactEmail("Contact assigned to you", User::find($requestData['assigned_user_id']), $contact);
+            }
+
+            // send two emails about the contact update one for the assigned user and one for the super admin
+
+            if($old_contact_status != $requestData['status']) {
+
+                $super_admin = User::where('is_admin', 1)->first();
+
+                if($super_admin->id == $contact->assigned_user_id) {
+                    $this->mailer->sendUpdateContactEmail("Contact status update", User::find($contact->assigned_user_id), $contact);
+                } else {
+                    $this->mailer->sendUpdateContactEmail("Contact status update", User::find($contact->assigned_user_id), $contact);
+
+                    $this->mailer->sendUpdateContactEmail("Contact status update", $super_admin, $contact);
+                }
+            }
+        }
+
         return redirect('admin/contacts')->with('flash_message', 'Contact updated!');
     }
 
@@ -234,9 +285,39 @@ class ContactsController extends Controller
      */
     public function destroy($id)
     {
+        $contact = Contact::find($id);
+
         Contact::destroy($id);
 
+        $this->mailer->sendDeleteContactEmail("Contact deleted", User::find($contact->assigned_user_id), $contact);
+
         return redirect('admin/contacts')->with('flash_message', 'Contact deleted!');
+    }
+
+
+    public function getAssignContact($id)
+    {
+        $contact = Contact::find($id);
+
+        $users = User::where('id', '!=', $contact->assigned_user_id)->get();
+
+        return view('pages.contacts.assign', compact('users', 'contact'));
+    }
+
+
+    public function postAssignContact(Request $request, $id)
+    {
+        $this->validate($request, [
+            'assigned_user_id' => 'required'
+        ]);
+
+        $contact = Contact::find($id);
+
+        $contact->update(['assigned_user_id' => $request->assigned_user_id]);
+
+        $this->mailer->sendAssignContactEmail("Contact assigned to you", User::find($request->assigned_user_id), $contact);
+
+        return redirect('admin/contacts')->with('flash_message', 'Contact assigned!');
     }
 
 
@@ -250,7 +331,6 @@ class ContactsController extends Controller
     {
         $this->validate($request, [
             'first_name' => 'required',
-            'middle_name' => 'required',
             'last_name' => 'required'
         ]);
     }

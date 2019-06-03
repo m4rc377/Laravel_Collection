@@ -65,16 +65,10 @@ class DatabaseSeeder extends Seeder
         ]);
 
 
-        // insert the initial permissions
+        // insert the permissions
         $permissions = [];
-        foreach (config('seed_data.initial_permissions') as $value) {
+        foreach (config('seed_data.permissions') as $value) {
             $permissions[] = \Spatie\Permission\Models\Permission::create(['name' => $value]);
         }
-
-        // insert default role
-        $role = \Spatie\Permission\Models\Role::create(['name' => config('seed_data.default_role')]);
-
-        // attach role with permissions
-        $role->syncPermissions($permissions);
     }
 }

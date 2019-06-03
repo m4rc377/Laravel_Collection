@@ -24,11 +24,11 @@
 
                         <a href="{{ url('/admin/documents') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
 
-                        @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('edit_document'))
+                        @if(user_can('edit_document'))
                             <a href="{{ url('/admin/documents/' . $document->id . '/edit') }}" title="Edit document"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
                         @endif
 
-                        @if(\Auth::user()->is_admin == 1 || \Auth::user()->can('delete_document'))
+                        @if(user_can('delete_document'))
                             <form method="POST" action="{{ url('admin/documents' . '/' . $document->id) }}" accept-charset="UTF-8" style="display:inline">
                                 {{ method_field('DELETE') }}
                                 {{ csrf_field() }}

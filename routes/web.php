@@ -33,9 +33,13 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::put('/users/role/{id}', 'UsersController@updateRole');
 
+    Route::resource('/documents', 'DocumentsController');
+
     Route::resource('/contacts', 'ContactsController');
 
-    Route::resource('/documents', 'DocumentsController');
+    Route::get('/contacts/{id}/assign', 'ContactsController@getAssignContact');
+
+    Route::put('/contacts/{id}/assign', 'ContactsController@postAssignContact');
 
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');
