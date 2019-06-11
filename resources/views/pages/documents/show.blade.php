@@ -55,8 +55,9 @@
                                     @if(\Auth::user()->is_admin == 1)
                                         <tr><th> Created by </th><td>{{ $document->createdBy->name }}</td></tr>
                                         <tr><th> Modified by </th><td>{{ isset($document->modifiedBy->name)?$document->modifiedBy->name:"" }}</td></tr>
-                                        <tr><th> Assigned to </th><td>{{ $document->assignedTo != null ?$document->assignedTo->name : "" }}</td></tr>
                                     @endif
+
+                                    <tr><th> Assigned to </th><td>{{ $document->assignedTo != null ?$document->assignedTo->name : "not set" }}</td></tr>
                                     <tr><th> Created at </th><td>{{ $document->created_at }}</td></tr>
                                     <tr><th> Modified at </th><td>{{ $document->updated_at }}</td></tr>
 

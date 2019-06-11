@@ -35,6 +35,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::resource('/documents', 'DocumentsController');
 
+    Route::get('/documents/{id}/assign', 'DocumentsController@getAssignDocument');
+
+    Route::put('/documents/{id}/assign', 'DocumentsController@postAssignDocument');
+
     Route::resource('/contacts', 'ContactsController');
 
     Route::get('/contacts/{id}/assign', 'ContactsController@getAssignContact');

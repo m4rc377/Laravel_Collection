@@ -41,7 +41,8 @@ class DocumentsController extends Controller
         // if not is admin user
         if(Auth::user()->is_admin == 0) {
 
-            $query->where('assigned_user_id', Auth::user()->id);
+            $query->where('assigned_user_id', Auth::user()->id)
+                  ->orWhere('created_by_id', Auth::user()->id);
         }
 
         $documents = $query->paginate($perPage);
@@ -169,6 +170,33 @@ class DocumentsController extends Controller
 
         return redirect('admin/documents')->with('flash_message', 'Document deleted!');
     }
+
+
+    public function getAssignDocument($id)
+    {
+        $document = Document::find($id);
+
+        $users = User::where('id', '!=', $document->assigned_user_id)->get();
+
+        return view('pages.documents.assign', compact('users', 'document'));
+    }
+
+
+    public function postAssignDocument(Request $request, $id)
+    {
+        $this->validate($request, [
+            'assigned_user_id' => 'required'
+        ]);
+
+        $document = Document::find($id);
+
+        $document->update(['assigned_user_id' => $request->assigned_user_id]);
+
+        $this->mailer->sendAssignDocumentEmail("Document assigned to you", User::find($request->assigned_user_id), $document);
+
+        return redirect('admin/documents')->with('flash_message', 'Document assigned!');
+    }
+
 
     protected function do_validate($request, $is_create = 1)
     {
