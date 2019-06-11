@@ -49,6 +49,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::resource('/tasks', 'TasksController');
 
+    Route::get('/tasks/{id}/assign', 'TasksController@getAssignTask');
+
+    Route::put('/tasks/{id}/assign', 'TasksController@postAssignTask');
+
+    Route::get('/tasks/{id}/update-status', 'TasksController@getUpdateStatus');
+
+    Route::put('/tasks/{id}/update-status', 'TasksController@postUpdateStatus');
+
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');
     });

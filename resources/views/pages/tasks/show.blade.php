@@ -23,13 +23,19 @@
                     <div class="card-body">
 
                         <a href="{{ url('/admin/tasks') }}" title="Back"><button class="btn btn-warning btn-sm"><i class="fa fa-arrow-left" aria-hidden="true"></i> Back</button></a>
-                        <a href="{{ url('/admin/tasks/' . $task->id . '/edit') }}" title="Edit task"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
 
-                        <form method="POST" action="{{ url('admin/tasks' . '/' . $task->id) }}" accept-charset="UTF-8" style="display:inline">
-                            {{ method_field('DELETE') }}
-                            {{ csrf_field() }}
-                            <button type="submit" class="btn btn-danger btn-sm" title="Delete task" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
-                        </form>
+                        @if(user_can('edit_task'))
+                            <a href="{{ url('/admin/tasks/' . $task->id . '/edit') }}" title="Edit task"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
+                        @endif
+
+                        @if(user_can('delete_task'))
+                            <form method="POST" action="{{ url('admin/tasks' . '/' . $task->id) }}" accept-charset="UTF-8" style="display:inline">
+                                {{ method_field('DELETE') }}
+                                {{ csrf_field() }}
+                                <button type="submit" class="btn btn-danger btn-sm" title="Delete task" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                            </form>
+                        @endif
+
                         <br/>
                         <br/>
 
@@ -57,8 +63,9 @@
                                     @if(\Auth::user()->is_admin == 1)
                                         <tr><th> Created by </th><td>{{ $task->createdBy->name }}</td></tr>
                                         <tr><th> Modified by </th><td>{{ isset($task->modifiedBy->name)?$task->modifiedBy->name:"" }}</td></tr>
-                                        <tr><th> Assigned to </th><td>{{ $task->assignedTo != null ?$task->assignedTo->name : "" }}</td></tr>
                                     @endif
+
+                                    <tr><th> Assigned to </th><td>{{ $task->assignedTo != null ?$task->assignedTo->name : "not set" }}</td></tr>
                                     <tr><th> Created at </th><td>{{ $task->created_at }}</td></tr>
                                     <tr><th> Modified at </th><td>{{ $task->updated_at }}</td></tr>
                                     @if($task->documents->count() > 0)

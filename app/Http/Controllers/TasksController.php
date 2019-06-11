@@ -20,6 +20,8 @@ class TasksController extends Controller
 
     public function __construct(MailerFactory $mailer)
     {
+        $this->middleware('admin:index-list_tasks|create-create_task|show-view_task|edit-edit_task|destroy-delete_task|getAssignTask-assign_task|getUpdateStatus-update_task_status', ['except' => ['store', 'update', 'postAssignTask', 'postUpdateStatus']]);
+
         $this->mailer = $mailer;
     }
 
@@ -35,10 +37,22 @@ class TasksController extends Controller
         $perPage = 25;
 
         if (!empty($keyword)) {
-            $tasks = Task::latest()->paginate($perPage);
+            $query = Task::where('name', 'like', "%$keyword%");
         } else {
-            $tasks = Task::latest()->paginate($perPage);
+            $query = Task::latest();
         }
+
+        // if not admin user show tasks if assigned to or created by that user
+        if(Auth::user()->is_admin == 0) {
+
+            $query->where(function ($query) {
+                $query->where('assigned_user_id', Auth::user()->id)
+                    ->orWhere('created_by_id', Auth::user()->id);
+            });
+
+        }
+
+        $tasks = $query->paginate($perPage);
 
         return view('pages.tasks.index', compact('tasks'));
     }
@@ -50,15 +64,9 @@ class TasksController extends Controller
      */
     public function create()
     {
-        $users = User::where('is_active', 1)->get();
+        $data = $this->getFormData();
 
-        $documents = Document::where('status', 1)->get();
-
-        $statuses = TaskStatus::all();
-
-        $task_types = TaskType::all();
-
-        $contact_statuses = ContactStatus::all();
+        list($users, $statuses, $task_types, $contact_statuses, $documents) = $data;
 
         return view('pages.tasks.create', compact('users', 'documents', 'statuses', 'task_types', 'contact_statuses'));
     }
@@ -139,19 +147,9 @@ class TasksController extends Controller
      */
     public function edit($id)
     {
-        $task = Task::findOrFail($id);
+        $data = $this->getFormData($id);
 
-        $users = User::where('is_active', 1)->get();
-
-        $documents = Document::where('status', 1)->get();
-
-        $statuses = TaskStatus::all();
-
-        $task_types = TaskType::all();
-
-        $selected_documents = $task->documents()->pluck('document_id')->toArray();
-
-        $contact_statuses = ContactStatus::all();
+        list($users, $statuses, $task_types, $contact_statuses, $documents, $task, $selected_documents) = $data;
 
         return view('pages.tasks.edit', compact('task', 'users', 'documents', 'statuses', 'task_types', 'selected_documents', 'contact_statuses'));
     }
@@ -192,6 +190,8 @@ class TasksController extends Controller
 
         $old_assign_user_id = $task->assigned_user_id;
 
+        $old_task_status = $task->status;
+
         $task->update($requestData);
 
 
@@ -205,10 +205,22 @@ class TasksController extends Controller
         }
 
 
-        // send notifications email
-        if(getSetting("enable_email_notification") == 1 && isset($requestData['assigned_user_id']) && $old_assign_user_id != $requestData['assigned_user_id']) {
+        // send notifications emails
+
+        if(getSetting("enable_email_notification") == 1) {
+
+            if (isset($requestData['assigned_user_id']) && $old_assign_user_id != $requestData['assigned_user_id']) {
 
                 $this->mailer->sendAssignTaskEmail("Task assigned to you", User::find($requestData['assigned_user_id']), $task);
+            }
+
+            // if status get update then send a notification to both the super admin and the assigned user
+            if($old_task_status != $requestData['status']) {
+
+                $this->mailer->sendAssignTaskEmail("Task status update", User::where('is_admin', 1)->first(), $task);
+
+                $this->mailer->sendAssignTaskEmail("Task status update", User::find($requestData['assigned_user_id']), $task);
+            }
         }
 
         return redirect('admin/tasks')->with('flash_message', 'Task updated!');
@@ -223,9 +235,69 @@ class TasksController extends Controller
      */
     public function destroy($id)
     {
+        $task = Task::find($id);
+
         Task::destroy($id);
 
+        $this->mailer->sendDeleteContactEmail("Task deleted", User::find($task->assigned_user_id), $task);
+
         return redirect('admin/tasks')->with('flash_message', 'Task deleted!');
+    }
+
+
+    public function getAssignTask($id)
+    {
+        $task = Task::find($id);
+
+        $users = User::where('id', '!=', $task->assigned_user_id)->get();
+
+        return view('pages.tasks.assign', compact('users', 'task'));
+    }
+
+
+    public function postAssignTask(Request $request, $id)
+    {
+        $this->validate($request, [
+            'assigned_user_id' => 'required'
+        ]);
+
+        $task = Task::find($id);
+
+        $task->update(['assigned_user_id' => $request->assigned_user_id]);
+
+        $this->mailer->sendAssignTaskEmail("Task assigned to you", User::find($request->assigned_user_id), $task);
+
+        return redirect('admin/tasks')->with('flash_message', 'Task assigned!');
+    }
+
+
+    public function getUpdateStatus($id)
+    {
+        $task = Task::find($id);
+
+        $statuses = TaskStatus::all();
+
+        return view('pages.tasks.update_status', compact('task', 'statuses'));
+    }
+
+    public function postUpdateStatus(Request $request, $id)
+    {
+        $this->validate($request, [
+            'status' => 'required'
+        ]);
+
+        $task = Task::find($id);
+
+        $task->update(['status' => $request->status]);
+
+        $this->mailer->sendAssignTaskEmail("Task status update", User::where('is_admin', 1)->first(), $task);
+
+        if(!empty($task->assigned_user_id)) {
+
+            $this->mailer->sendAssignTaskEmail("Task status update", User::find($task->assigned_user_id), $task);
+        }
+
+        return redirect('admin/tasks')->with('flash_message', 'Task status updated!');
     }
 
 
@@ -262,5 +334,45 @@ class TasksController extends Controller
         $this->validate($request, [
             'name' => 'required'
         ]);
+    }
+
+
+    /**
+     * get form data for the tasks form
+     *
+     *
+     *
+     * @param null $id
+     * @return array
+     */
+    protected function getFormData($id = null)
+    {
+        $users = User::where('is_active', 1)->get();
+
+        $statuses = TaskStatus::all();
+
+        $task_types = TaskType::all();
+
+        $contact_statuses = ContactStatus::all();
+
+        if(Auth::user()->is_admin == 1) {
+            $documents = Document::where('status', 1)->get();
+        } else {
+            $documents = Document::where('status', 1)->where(function ($query) {
+                $query->where('created_by_id', Auth::user()->id)
+                    ->orWhere('assigned_user_id', Auth::user()->id);
+            })->get();
+        }
+
+        if($id == null) {
+
+            return [$users, $statuses, $task_types, $contact_statuses, $documents];
+        }
+
+        $task = Task::findOrFail($id);
+
+        $selected_documents = $task->documents()->pluck('document_id')->toArray();
+
+        return [$users, $statuses, $task_types, $contact_statuses, $documents, $task, $selected_documents];
     }
 }

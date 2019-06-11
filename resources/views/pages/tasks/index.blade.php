@@ -22,9 +22,11 @@
 
                         @include('includes.flash_message')
 
-                        <a href="{{ url('/admin/tasks/create') }}" class="btn btn-success btn-sm pull-right" title="Add New task">
-                            <i class="fa fa-plus" aria-hidden="true"></i> Add New
-                        </a>
+                        @if(user_can("create_task"))
+                            <a href="{{ url('/admin/tasks/create') }}" class="btn btn-success btn-sm pull-right" title="Add New task">
+                                <i class="fa fa-plus" aria-hidden="true"></i> Add New
+                            </a>
+                        @endif
 
                         <form method="GET" action="{{ url('/admin/tasks') }}" accept-charset="UTF-8" class="form-inline my-2 my-lg-0" role="search">
                             <div class="input-group">
@@ -51,8 +53,8 @@
                                     <th>Status</th>
                                     @if(\Auth::user()->is_admin == 1)
                                         <th>Created by</th>
-                                        <th>Assigned to</th>
                                     @endif
+                                    <th>Assigned to</th>
                                     <th>Created at</th>
                                     <th>Actions</th>
                                 </tr>
@@ -68,18 +70,33 @@
                                             <td>{{ $item->getStatus->name }}</td>
                                             @if(\Auth::user()->is_admin == 1)
                                                 <td>{{ $item->createdBy->name }}</td>
-                                                <td>{{ $item->assignedTo != null ? $item->assignedTo->name : "" }}</td>
                                             @endif
+                                            <td>{{ $item->assignedTo != null ? $item->assignedTo->name : "not set" }}</td>
                                             <td>{{ $item->created_at }}</td>
                                             <td>
-                                                <a href="{{ url('/admin/tasks/' . $item->id) }}" title="View task"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
-                                                <a href="{{ url('/admin/tasks/' . $item->id . '/edit') }}" title="Edit task"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
+                                                @if(user_can('view_task'))
+                                                    <a href="{{ url('/admin/tasks/' . $item->id) }}" title="View task"><button class="btn btn-info btn-sm"><i class="fa fa-eye" aria-hidden="true"></i> View</button></a>
+                                                @endif
 
-                                                <form method="POST" action="{{ url('/admin/tasks' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">
-                                                    {{ method_field('DELETE') }}
-                                                    {{ csrf_field() }}
-                                                    <button type="submit" class="btn btn-danger btn-sm" title="Delete task" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
-                                                </form>
+                                                @if(user_can('edit_task'))
+                                                    <a href="{{ url('/admin/tasks/' . $item->id . '/edit') }}" title="Edit task"><button class="btn btn-primary btn-sm"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> Edit</button></a>
+                                                @endif
+
+                                                @if(user_can('assign_task'))
+                                                    <a href="{{ url('/admin/tasks/' . $item->id . '/assign') }}" title="Assign task"><button class="btn btn-primary btn-sm"><i class="fa fa-envelope-o" aria-hidden="true"></i> Assign</button></a>
+                                                @endif
+
+                                                @if(user_can('update_task_status'))
+                                                    <a href="{{ url('/admin/tasks/' . $item->id . '/update-status') }}" title="Update task status"><button class="btn btn-primary btn-sm"><i class="fa fa-star" aria-hidden="true"></i> Update status</button></a>
+                                                @endif
+
+                                                @if(user_can('delete_task'))
+                                                    <form method="POST" action="{{ url('/admin/tasks' . '/' . $item->id) }}" accept-charset="UTF-8" style="display:inline">
+                                                        {{ method_field('DELETE') }}
+                                                        {{ csrf_field() }}
+                                                        <button type="submit" class="btn btn-danger btn-sm" title="Delete task" onclick="return confirm('Confirm delete?')"><i class="fa fa-trash-o" aria-hidden="true"></i> Delete</button>
+                                                    </form>
+                                                @endif
                                             </td>
                                         </tr>
                                     @endforeach

@@ -173,4 +173,50 @@ class MailerFactory
             die("Mailer Factory error: " . $ex->getMessage());
         }
     }
+
+
+    /**
+     * send Update Task Status Email
+     *
+     *
+     * @param $subject
+     * @param $user
+     * @param $contact
+     */
+    public function sendUpdateTaskStatusEmail($subject, $user, $task)
+    {
+        try {
+            $this->mailer->send("emails.update_task_status", ['user' => $user, 'task' => $task, 'subject' => $subject], function($message) use ($subject, $user) {
+
+                $message->from($this->fromAddress, $this->fromName)
+                    ->to($user->email)->subject($subject);
+
+            });
+        } catch (\Exception $ex) {
+            die("Mailer Factory error: " . $ex->getMessage());
+        }
+    }
+
+
+    /**
+     * send Delete Task Email
+     *
+     *
+     * @param $subject
+     * @param $user
+     * @param $task
+     */
+    public function sendDeleteTaskEmail($subject, $user, $task)
+    {
+        try {
+            $this->mailer->send("emails.delete_task", ['user' => $user, 'task' => $task, 'subject' => $subject], function($message) use ($subject, $user) {
+
+                $message->from($this->fromAddress, $this->fromName)
+                    ->to($user->email)->subject($subject);
+
+            });
+        } catch (\Exception $ex) {
+            die("Mailer Factory error: " . $ex->getMessage());
+        }
+    }
 }

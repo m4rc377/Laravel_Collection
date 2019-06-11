@@ -447,7 +447,17 @@ class ContactsController extends Controller
             return [];
 
 
-        return Contact::where('contact_status.name', $request->status)
-                    ->join('contact_status', 'contact_status.id', '=', 'contact.status')->get(["*", "contact.id as id"]);
+        $contacts = Contact::where('contact_status.name', $request->status)
+            ->join('contact_status', 'contact_status.id', '=', 'contact.status');
+
+        if(Auth::user()->is_admin == 1) {
+
+            return $contacts->get();
+        }
+
+        return $contacts->where(function ($query) {
+            $query->where('assigned_user_id', Auth::user()->id)
+                  ->orWhere('created_by_id', Auth::user()->id);
+        })->get();
     }
 }

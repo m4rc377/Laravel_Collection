@@ -60,6 +60,14 @@
                 </li>
             @endif
 
+            @if(user_can('list_tasks'))
+                <li class="{{ Request::segment(2) == "tasks"?"active":"" }}">
+                    <a href="{{ url('/admin/tasks') }}">
+                        <i class="fa fa-tasks"></i> <span>Tasks</span>
+                    </a>
+                </li>
+            @endif
+
             @if(\Auth::user()->is_admin == 1)
                 <li class="{{ in_array(Request::segment(2), ['users', 'permissions', 'roles'])?"active":"" }} treeview">
                     <a href="#">
