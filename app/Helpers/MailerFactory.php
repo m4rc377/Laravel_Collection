@@ -151,4 +151,26 @@ class MailerFactory
             die("Mailer Factory error: " . $ex->getMessage());
         }
     }
+
+    /**
+     * send Assign Task Email
+     *
+     *
+     * @param $subject
+     * @param $user
+     * @param $task
+     */
+    public function sendAssignTaskEmail($subject, $user, $task)
+    {
+        try {
+            $this->mailer->send("emails.assign_task", ['user' => $user, 'task' => $task, 'subject' => $subject], function($message) use ($subject, $user) {
+
+                $message->from($this->fromAddress, $this->fromName)
+                    ->to($user->email)->subject($subject);
+
+            });
+        } catch (\Exception $ex) {
+            die("Mailer Factory error: " . $ex->getMessage());
+        }
+    }
 }

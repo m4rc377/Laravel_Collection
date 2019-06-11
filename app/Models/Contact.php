@@ -95,4 +95,21 @@ class Contact extends Model
     {
         return $this->hasMany(ContactPhone::class, 'contact_id');
     }
+
+
+    /**
+     * get all tasks related to this contact
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tasks()
+    {
+        return $this->hasMany(Task::class, 'contact_id');
+    }
+
+
+    public function getName()
+    {
+        return $this->first_name .  (!empty($this->middle_name)?" " . $this->middle_name . " ":"") . (!empty($this->last_name)?" " . $this->last_name:"");
+    }
 }

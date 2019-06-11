@@ -400,4 +400,22 @@ class ContactsController extends Controller
             $contactDocument->save();
         }
     }
+
+
+    /**
+     * get Contacts By Status
+     *
+     *
+     * @param Request $request
+     * @return array
+     */
+    public function getContactsByStatus(Request $request)
+    {
+        if(!$request->status)
+            return [];
+
+
+        return Contact::where('contact_status.name', $request->status)
+                    ->join('contact_status', 'contact_status.id', '=', 'contact.status')->get(["*", "contact.id as id"]);
+    }
 }

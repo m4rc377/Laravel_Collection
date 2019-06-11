@@ -41,6 +41,10 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::put('/contacts/{id}/assign', 'ContactsController@postAssignContact');
 
+    Route::get('/api/contacts/get-contacts-by-status', 'ContactsController@getContactsByStatus');
+
+    Route::resource('/tasks', 'TasksController');
+
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');
     });

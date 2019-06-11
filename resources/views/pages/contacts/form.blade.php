@@ -231,8 +231,6 @@
             <option value="{{ $document->id }}" {{ isset($selected_documents) && in_array($document->id, $selected_documents)?"selected":"" }}>{{ $document->name }}</option>
         @endforeach
     </select>
-
-    {!! $errors->first('assigned_user_id', '<p class="help-block">:message</p>') !!}
 </div>
 
 @if(\Auth::user()->is_admin == 1)
