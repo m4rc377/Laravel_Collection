@@ -54,8 +54,8 @@
                                     <th>Status</th>
                                     @if(\Auth::user()->is_admin == 1)
                                         <th>Created by</th>
-                                        <th>Assigned to</th>
                                     @endif
+                                        <th>Assigned to</th>
                                     <th>Created at</th>
                                     <th>Actions</th>
                                 </tr>
@@ -72,8 +72,8 @@
                                             <td><i class="btn bg-maroon">{{ $item->getStatus->name }}</i></td>
                                             @if(\Auth::user()->is_admin == 1)
                                                 <td>{{ $item->createdBy->name }}</td>
-                                                <td>{{ $item->assignedTo != null ? $item->assignedTo->name : "" }}</td>
                                             @endif
+                                                <td>{{ $item->assignedTo != null ? $item->assignedTo->name : "not set" }}</td>
                                             <td>{{ $item->created_at }}</td>
                                             <td>
 
