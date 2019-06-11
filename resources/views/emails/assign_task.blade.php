@@ -10,7 +10,7 @@
 </p>
 
 <p>
-    You have been assigned a task, go and check them here <a href="{{ url('admin/tasks/' . $task->id) }}"> {{ url('admin/contacts/' . $task->id) }} </a>
+    You have been assigned a task, go and check them here <a href="{{ url('admin/tasks/' . $task->id) }}"> {{ url('admin/tasks/' . $task->id) }} </a>
 </p>
 </body>
 </html>
