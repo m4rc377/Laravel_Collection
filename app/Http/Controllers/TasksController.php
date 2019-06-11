@@ -217,9 +217,16 @@ class TasksController extends Controller
             // if status get update then send a notification to both the super admin and the assigned user
             if($old_task_status != $requestData['status']) {
 
-                $this->mailer->sendAssignTaskEmail("Task status update", User::where('is_admin', 1)->first(), $task);
+                $super_admin = User::where('is_admin', 1)->first();
 
-                $this->mailer->sendAssignTaskEmail("Task status update", User::find($requestData['assigned_user_id']), $task);
+                if($super_admin->id == $task->assigned_user_id) {
+                    $this->mailer->sendUpdateTaskStatusEmail("Task status update", User::find($task->assigned_user_id), $task);
+                } else {
+                    $this->mailer->sendUpdateTaskStatusEmail("Task status update", User::find($task->assigned_user_id), $task);
+
+                    $this->mailer->sendUpdateTaskStatusEmail("Task status update", $super_admin, $task);
+                }
+
             }
         }
 
@@ -239,7 +246,7 @@ class TasksController extends Controller
 
         Task::destroy($id);
 
-        $this->mailer->sendDeleteContactEmail("Task deleted", User::find($task->assigned_user_id), $task);
+        $this->mailer->sendDeleteTaskEmail("Task deleted", User::find($task->assigned_user_id), $task);
 
         return redirect('admin/tasks')->with('flash_message', 'Task deleted!');
     }
@@ -290,11 +297,19 @@ class TasksController extends Controller
 
         $task->update(['status' => $request->status]);
 
-        $this->mailer->sendAssignTaskEmail("Task status update", User::where('is_admin', 1)->first(), $task);
 
         if(!empty($task->assigned_user_id)) {
 
-            $this->mailer->sendAssignTaskEmail("Task status update", User::find($task->assigned_user_id), $task);
+            $super_admin = User::where('is_admin', 1)->first();
+
+            if($super_admin->id == $task->assigned_user_id) {
+
+                $this->mailer->sendUpdateTaskStatusEmail("Task status update", User::find($task->assigned_user_id), $task);
+            } else {
+                $this->mailer->sendUpdateTaskStatusEmail("Task status update", User::find($task->assigned_user_id), $task);
+
+                $this->mailer->sendUpdateTaskStatusEmail("Task status update", $super_admin, $task);
+            }
         }
 
         return redirect('admin/tasks')->with('flash_message', 'Task status updated!');
