@@ -415,9 +415,13 @@ class ContactsController extends Controller
         if(Auth::user()->is_admin == 1) {
             $documents = Document::where('status', 1)->get();
         } else {
-            $documents = Document::where('status', 1)->where(function ($query) {
+            $super_admin = User::where('is_admin', 1)->first();
+
+            $documents = Document::where('status', 1)->where(function ($query) use ($super_admin) {
                 $query->where('created_by_id', Auth::user()->id)
-                    ->orWhere('assigned_user_id', Auth::user()->id);
+                    ->orWhere('assigned_user_id', Auth::user()->id)
+                    ->orWhere('created_by_id', $super_admin->id)
+                    ->orWhere('assigned_user_id', $super_admin->id);
             })->get();
         }
 

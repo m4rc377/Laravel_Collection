@@ -252,7 +252,7 @@ class UsersController extends Controller
 
 
         // send role update notification
-        if(getSetting("enable_email_notification") == 1 && $old_roles->count() > 0 && $old_roles[0]->id != $request->role_id) {
+        if(getSetting("enable_email_notification") == 1 && $old_roles->count() > 0 && is_array($old_roles) && $old_roles[0]->id != $request->role_id) {
             // send notify email
             $this->mailer->sendUpdateRoleEmail("Your mini crm account have updated role", $user);
         }
