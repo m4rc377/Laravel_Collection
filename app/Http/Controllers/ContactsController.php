@@ -285,7 +285,9 @@ class ContactsController extends Controller
 
         Contact::destroy($id);
 
-        $this->mailer->sendDeleteContactEmail("Contact deleted", User::find($contact->assigned_user_id), $contact);
+        if(getSetting("enable_email_notification") == 1) {
+            $this->mailer->sendDeleteContactEmail("Contact deleted", User::find($contact->assigned_user_id), $contact);
+        }
 
         return redirect('admin/contacts')->with('flash_message', 'Contact deleted!');
     }
@@ -311,7 +313,9 @@ class ContactsController extends Controller
 
         $contact->update(['assigned_user_id' => $request->assigned_user_id]);
 
-        $this->mailer->sendAssignContactEmail("Contact assigned to you", User::find($request->assigned_user_id), $contact);
+        if(getSetting("enable_email_notification") == 1) {
+            $this->mailer->sendAssignContactEmail("Contact assigned to you", User::find($request->assigned_user_id), $contact);
+        }
 
         return redirect('admin/contacts')->with('flash_message', 'Contact assigned!');
     }

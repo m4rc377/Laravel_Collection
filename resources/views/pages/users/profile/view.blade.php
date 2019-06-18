@@ -256,6 +256,32 @@
                                 </div>
                             @endif
 
+                            @if(user_can('list_tasks'))
+                                <h3>Tasks assigned</h3>
+                                @if($user->tasks->count() > 0)
+                                    <table class="table">
+                                        <tr>
+                                            <th>Name</th>
+                                            <th>View</th>
+                                        </tr>
+                                        <tbody>
+                                        @foreach($user->tasks as $task)
+                                            <tr>
+                                                <td>{{ $task->name }}</td>
+                                                <td>
+                                                    @if(user_can("view_task"))
+                                                        <a href="{{ url('/admin/tasks/' . $task->id) }}"><i class="fa fa-camera"></i></a>
+                                                    @endif
+                                                </td>
+                                            </tr>
+                                        @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <p>No tasks assigned</p>
+                                @endif
+                            @endif
+
                         </div>
 
                     </div>

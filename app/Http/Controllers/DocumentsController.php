@@ -192,7 +192,9 @@ class DocumentsController extends Controller
 
         $document->update(['assigned_user_id' => $request->assigned_user_id]);
 
-        $this->mailer->sendAssignDocumentEmail("Document assigned to you", User::find($request->assigned_user_id), $document);
+        if(getSetting("enable_email_notification") == 1) {
+            $this->mailer->sendAssignDocumentEmail("Document assigned to you", User::find($request->assigned_user_id), $document);
+        }
 
         return redirect('admin/documents')->with('flash_message', 'Document assigned!');
     }

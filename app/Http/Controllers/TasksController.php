@@ -246,7 +246,9 @@ class TasksController extends Controller
 
         Task::destroy($id);
 
-        $this->mailer->sendDeleteTaskEmail("Task deleted", User::find($task->assigned_user_id), $task);
+        if(getSetting("enable_email_notification") == 1) {
+            $this->mailer->sendDeleteTaskEmail("Task deleted", User::find($task->assigned_user_id), $task);
+        }
 
         return redirect('admin/tasks')->with('flash_message', 'Task deleted!');
     }
@@ -272,7 +274,9 @@ class TasksController extends Controller
 
         $task->update(['assigned_user_id' => $request->assigned_user_id]);
 
-        $this->mailer->sendAssignTaskEmail("Task assigned to you", User::find($request->assigned_user_id), $task);
+        if(getSetting("enable_email_notification") == 1) {
+            $this->mailer->sendAssignTaskEmail("Task assigned to you", User::find($request->assigned_user_id), $task);
+        }
 
         return redirect('admin/tasks')->with('flash_message', 'Task assigned!');
     }
@@ -298,7 +302,7 @@ class TasksController extends Controller
         $task->update(['status' => $request->status]);
 
 
-        if(!empty($task->assigned_user_id)) {
+        if(getSetting("enable_email_notification") == 1 && !empty($task->assigned_user_id)) {
 
             $super_admin = User::where('is_admin', 1)->first();
 
