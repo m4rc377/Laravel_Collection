@@ -1,10 +1,10 @@
 {
     "_readme": [
         "This file locks the dependencies of your project to a known state",
-        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "7eef71017abb8cca3745dcc396c5d7b9",
+    "content-hash": "b5a85082bde5a7a872270135e4b43917",
     "packages": [
         {
             "name": "dnoegel/php-xdg-base-dir",
@@ -1271,6 +1271,52 @@
                 "uuid"
             ],
             "time": "2018-07-19T23:38:55+00:00"
+        },
+        {
+            "name": "sayeed/custom-migrate",
+            "version": "1.0.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/nilpahar/custom-migration.git",
+                "reference": "731a99164dbd726d8c855ee3c823a3d3e14935b5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/nilpahar/custom-migration/zipball/731a99164dbd726d8c855ee3c823a3d3e14935b5",
+                "reference": "731a99164dbd726d8c855ee3c823a3d3e14935b5",
+                "shasum": ""
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Sayeed\\CustomMigrate\\CustomMigrateServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Sayeed\\CustomMigrate\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Hasan",
+                    "email": "jbhasan@gmail.com"
+                }
+            ],
+            "description": "Custom migrate in laravel. You can individual file migrate here",
+            "keywords": [
+                "database",
+                "migrate",
+                "migration",
+                "specific"
+            ],
+            "time": "2018-11-13T13:53:14+00:00"
         },
         {
             "name": "spatie/laravel-permission",
@@ -2573,6 +2619,69 @@
                 "environment"
             ],
             "time": "2019-01-29T11:11:52+00:00"
+        },
+        {
+            "name": "webklex/laravel-imap",
+            "version": "1.4.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Webklex/laravel-imap.git",
+                "reference": "84664a147a3955718521f5b291748cda8d7ce209"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Webklex/laravel-imap/zipball/84664a147a3955718521f5b291748cda8d7ce209",
+                "reference": "84664a147a3955718521f5b291748cda8d7ce209",
+                "shasum": ""
+            },
+            "require": {
+                "ext-fileinfo": "*",
+                "ext-iconv": "*",
+                "ext-imap": "*",
+                "ext-mbstring": "*",
+                "laravel/framework": ">=5.0.0",
+                "php": ">=5.5.9"
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "1.0-dev"
+                },
+                "laravel": {
+                    "providers": [
+                        "Webklex\\IMAP\\Providers\\LaravelServiceProvider"
+                    ],
+                    "aliases": {
+                        "Client": "Webklex\\IMAP\\Facades\\Client"
+                    }
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Webklex\\IMAP\\": "src/IMAP"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Malte Goldenbaum",
+                    "email": "github@webklex.com",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Laravel IMAP client",
+            "homepage": "https://github.com/webklex/laravel-imap",
+            "keywords": [
+                "imap",
+                "laravel",
+                "laravel-imap",
+                "mail",
+                "webklex"
+            ],
+            "time": "2019-04-12T22:27:54+00:00"
         }
     ],
     "packages-dev": [

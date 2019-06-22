@@ -3,6 +3,7 @@
 namespace App\Helpers;
 
 
+use App\User;
 use Illuminate\Contracts\Mail\Mailer;
 
 class MailerFactory
@@ -215,6 +216,40 @@ class MailerFactory
                     ->to($user->email)->subject($subject);
 
             });
+        } catch (\Exception $ex) {
+            die("Mailer Factory error: " . $ex->getMessage());
+        }
+    }
+
+
+    /**
+     * send mailbox email
+     *
+     *
+     * @param $mailbox
+     * @param $receivers
+     */
+    public function sendMailboxEmail($mailbox)
+    {
+        try {
+
+            foreach ($mailbox->receivers as $receiver) {
+
+                $user = User::find($receiver->receiver_id);
+
+                $this->mailer->send("emails.mailbox_send", ['user' => $user, 'mailbox' => $mailbox], function ($message) use ($user, $mailbox) {
+
+                    $message->from($this->fromAddress, $this->fromName)
+                        ->to($user->email)->subject($mailbox->subject);
+
+                    if($mailbox->attachments->count() > 0) {
+                        foreach($mailbox->attachments as $attachment) {
+                            $message->attach(public_path('uploads/mailbox/' . $attachment->attachment));
+                        }
+                    }
+
+                });
+            }
         } catch (\Exception $ex) {
             die("Mailer Factory error: " . $ex->getMessage());
         }

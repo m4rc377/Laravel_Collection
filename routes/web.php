@@ -57,6 +57,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::put('/tasks/{id}/update-status', 'TasksController@postUpdateStatus');
 
+    Route::get('/mailbox/{folder?}', 'MailboxController@index');
+
+    Route::get('/mailbox-create', 'MailboxController@create');
+
+    Route::post('/mailbox-create', 'MailboxController@store');
+
+    Route::get('/mailbox-show', 'MailboxController@show');
+
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');
     });
