@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMailboxReceiversTable extends Migration
+class CreateMailboxFolderTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,10 @@ class CreateMailboxReceiversTable extends Migration
      */
     public function up()
     {
-        Schema::create('mailbox_receivers', function (Blueprint $table) {
+        Schema::create('mailbox_folder', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('mailbox_id');
-            $table->integer('receiver_id');
+            $table->string("title");
+            $table->string("icon");
             $table->timestamps();
         });
     }
@@ -28,6 +28,6 @@ class CreateMailboxReceiversTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mailbox_receivers');
+        Schema::dropIfExists('mailbox_folder');
     }
 }

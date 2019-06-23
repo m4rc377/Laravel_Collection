@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateMailboxAttachmentsTable extends Migration
+class CreateMailboxAttachmentTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,11 +13,13 @@ class CreateMailboxAttachmentsTable extends Migration
      */
     public function up()
     {
-        Schema::create('mailbox_attachments', function (Blueprint $table) {
+        Schema::create('mailbox_attachment', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('mailbox_id');
+            $table->integer('mailbox_id')->unsigned();
             $table->string('attachment');
             $table->timestamps();
+
+            $table->foreign('mailbox_id')->references('id')->on('mailbox')->onDelete('cascade');
         });
     }
 
@@ -28,6 +30,6 @@ class CreateMailboxAttachmentsTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('mailbox_attachments');
+        Schema::dropIfExists('mailbox_attachment');
     }
 }

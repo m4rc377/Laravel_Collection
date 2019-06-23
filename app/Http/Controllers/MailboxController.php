@@ -92,9 +92,7 @@ class MailboxController extends Controller
 
         if($request->submit == 2 || !$receiver_ids) {
             $mailbox->folder = "Drafts";
-            $mailbox->is_unread = 0;
         } else {
-            $mailbox->is_unread = 1;
             $mailbox->folder = "Sent";
         }
 
@@ -102,16 +100,7 @@ class MailboxController extends Controller
 
 
         // save receivers if found
-        if($receiver_ids) {
-
-            foreach ($receiver_ids as $receiver_id) {
-                $mailbox_receiver = new MailboxReceiver();
-
-                $mailbox_receiver->mailbox_id = $mailbox->id;
-                $mailbox_receiver->receiver_id = $receiver_id;
-                $mailbox_receiver->save();
-            }
-        }
+        $this->saveReceivers($receiver_ids, $mailbox);
 
 
         // save attachments if found
@@ -159,7 +148,8 @@ class MailboxController extends Controller
                     ->where('mailbox_receivers.receiver_id', Auth::user()->id)
                     ->where('folder', "Sent")
                     ->where('sender_id', '!=', Auth::user()->id)
-                    ->where('parent_id', 0);
+                    ->where('parent_id', 0)
+                    ->select(["*", "mailboxes.id as id"]);
             } else if ($folder == "Sent" || $folder == "Drafts") {
                 $query = Mailbox::where('sender_id', Auth::user()->id)
                     ->where('folder', $folder)
@@ -188,7 +178,7 @@ class MailboxController extends Controller
             ->where('sender_id', '!=', Auth::user()->id)
             ->where('folder', "Sent")
             ->where('parent_id', 0)
-            ->where('is_unread', 1)->count();
+            ->where('mailbox_receivers.is_unread', 1)->count();
 
         return [$messages, $unreadMessages];
     }
@@ -253,6 +243,32 @@ class MailboxController extends Controller
                 $attachment->mailbox_id = $mailbox->id;
                 $attachment->attachment = $new_name;
                 $attachment->save();
+            }
+        }
+    }
+
+
+    /**
+     * saveReceivers
+     *
+     *
+     * @param $receiver_ids
+     * @param $mailbox
+     */
+    private function saveReceivers($receiver_ids, $mailbox)
+    {
+        if($receiver_ids) {
+
+            foreach ($receiver_ids as $receiver_id) {
+                $mailbox_receiver = new MailboxReceiver();
+
+                $mailbox_receiver->mailbox_id = $mailbox->id;
+
+                $mailbox_receiver->receiver_id = $receiver_id;
+
+                $mailbox_receiver->is_unread = 1;
+
+                $mailbox_receiver->save();
             }
         }
     }

@@ -4,12 +4,13 @@ namespace App\Models;
 
 use App\User;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Auth;
 
 class Mailbox extends Model
 {
     protected $table = "mailboxes";
 
-    protected $fillable = ["subject", "body", "sender_id", "folder", "is_unread", "is_important", "time_sent", "parent_id"];
+    protected $fillable = ["subject", "body", "sender_id", "folder", "time_sent", "parent_id"];
 
 
     public function sender()
@@ -19,7 +20,7 @@ class Mailbox extends Model
 
     public function receivers()
     {
-        return $this->hasMany(MailboxReceiver::class, "mailbox_id");
+        return $this->hasMany(MailboxReceiver::class);
     }
 
     public function attachments()
@@ -30,5 +31,21 @@ class Mailbox extends Model
     public function replies()
     {
         return $this->hasMany(self::class, "parent_id")->where("parent_id", "<>", 0);
+    }
+
+    public function currentReceiver()
+    {
+        $curr = null;
+
+        foreach ($this->receivers as $receiver) {
+
+            if($receiver->receiver_id == Auth::user()->id) {
+                $curr = $receiver;
+
+                break;
+            }
+        }
+
+        return $curr;
     }
 }
