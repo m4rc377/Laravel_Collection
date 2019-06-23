@@ -7,9 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class MailboxReceiver extends Model
 {
-    protected $table = "mailbox_receivers";
+    protected $table = "mailbox_receiver";
 
-    protected $fillable = ["mailbox_id", "receiver_id", "is_unread", "is_important"];
+    protected $fillable = ["mailbox_id", "receiver_id"];
 
 
     public function mailbox()

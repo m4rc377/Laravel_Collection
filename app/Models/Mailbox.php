@@ -8,9 +8,9 @@ use Illuminate\Support\Facades\Auth;
 
 class Mailbox extends Model
 {
-    protected $table = "mailboxes";
+    protected $table = "mailbox";
 
-    protected $fillable = ["subject", "body", "sender_id", "folder", "time_sent", "parent_id"];
+    protected $fillable = ["subject", "body", "sender_id", "time_sent", "parent_id"];
 
 
     public function sender()
