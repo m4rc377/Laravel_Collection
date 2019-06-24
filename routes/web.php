@@ -63,7 +63,7 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::post('/mailbox-create', 'MailboxController@store');
 
-    Route::get('/mailbox-show', 'MailboxController@show');
+    Route::get('/mailbox-show/{id}', 'MailboxController@show');
 
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');

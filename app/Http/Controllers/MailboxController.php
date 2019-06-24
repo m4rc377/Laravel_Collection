@@ -8,6 +8,7 @@ use App\Models\Mailbox;
 use App\Models\MailboxAttachment;
 use App\Models\MailboxFlags;
 use App\Models\MailboxReceiver;
+use App\Models\MailboxTmpReceiver;
 use App\Models\MailboxUserFolder;
 use App\User;
 use Illuminate\Http\Request;
@@ -65,7 +66,8 @@ class MailboxController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'subject' => 'required'
+            'subject' => 'required',
+            'receiver_id' => 'required'
         ]);
 
         try {
@@ -105,9 +107,6 @@ class MailboxController extends Controller
 
         // check for the submit button and whether to send or save as draft
         if($request->submit == 1) {
-            if(!$receiver_ids) {
-                return redirect('admin/mailbox/Drafts')->with('flash_warning', 'There is no receiver users! message will not be sent it will be saved as draft');
-            }
 
             $this->mailer->sendMailboxEmail($mailbox);
 
@@ -117,11 +116,22 @@ class MailboxController extends Controller
         return redirect('admin/mailbox/Drafts')->with('flash_message', 'Message saved as draft');
     }
 
-    public function show()
+
+    /**
+     * show email
+     *
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function show($id)
     {
         $folders = $this->folders;
 
-        return view('pages.mailbox.show', compact('folders'));
+        $unreadMessages = $this->getUnreadMessages();
+
+        $mailbox = Mailbox::find($id);
+
+        return view('pages.mailbox.show', compact('folders', 'unreadMessages', 'mailbox'));
     }
 
 
@@ -272,8 +282,8 @@ class MailboxController extends Controller
 
         $mailbox_user_folder->user_id = $mailbox->sender_id;
 
-        // if click drafts button or no receivers save into "Drafts" folder
-        if($submit == 2 || !$receiver_ids) {
+        // if click drafts button save into "Drafts" folder
+        if($submit == 2) {
             $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Drafts")->first()->id;
         } else {
             $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Sent")->first()->id;
@@ -297,7 +307,7 @@ class MailboxController extends Controller
 
         // 2. The receivers
         // if there are receivers and sent button clicked
-        if($submit == 1 && $receiver_ids) {
+        if($submit == 1) {
 
             foreach ($receiver_ids as $receiver_id) {
 
@@ -334,6 +344,20 @@ class MailboxController extends Controller
 
                 $mailbox_flag->save();
             }
+        } else {
+
+            // save into tmp receivers
+            foreach ($receiver_ids as $receiver_id) {
+
+                // save receiver
+                $mailbox_receiver = new MailboxTmpReceiver();
+
+                $mailbox_receiver->mailbox_id = $mailbox->id;
+
+                $mailbox_receiver->receiver_id = $receiver_id;
+
+                $mailbox_receiver->save();
+            }
         }
     }
 
@@ -356,7 +380,7 @@ class MailboxController extends Controller
                 $filename = $file->getClientOriginalName();
                 $extension = $file->getClientOriginalExtension();
 
-                $new_name = time().'.'.$extension;
+                $new_name = $filename . '-' . time().'.'.$extension;
 
                 $file->move($destination, $new_name);
 

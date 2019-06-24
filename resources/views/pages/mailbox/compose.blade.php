@@ -62,7 +62,7 @@
                             <div class="form-group">
                                 <div class="btn btn-default btn-file">
                                     <i class="fa fa-paperclip"></i> Attachments
-                                    <input type="file" name="attachments" multiple>
+                                    <input type="file" name="attachments[]" multiple>
                                 </div>
                                 <p class="help-block">Max. {{ (int)(ini_get('upload_max_filesize')) }}M</p>
                             </div>
