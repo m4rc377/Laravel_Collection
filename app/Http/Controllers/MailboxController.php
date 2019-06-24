@@ -264,7 +264,7 @@ class MailboxController extends Controller
         // For the receiver perspective the message will be in the "Inbox" folder
 
 
-        // First: The sender
+        // 1. The sender
         // save folder as "Sent"
         $mailbox_user_folder = new MailboxUserFolder();
 
@@ -295,7 +295,7 @@ class MailboxController extends Controller
         $mailbox_flag->save();
 
 
-        // First: The receivers
+        // 2. The receivers
         // if there are receivers and sent button clicked
         if($submit == 1 && $receiver_ids) {
 
