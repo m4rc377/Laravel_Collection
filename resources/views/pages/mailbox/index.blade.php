@@ -58,18 +58,13 @@
                                     @foreach($messages as $message)
                                         <tr>
                                             <td><input type="checkbox" value="1" data-id="{{ $message->id }}" class="check-message"></td>
-{{--                                            <td class="mailbox-star"><a href="#"><i class="fa {{ $message->currentReceiver!=null && $message->currentReceiver->is_important==1?'fa-star':'fa-star-o' }} text-yellow"></i></a></td>--}}
+                                            <td class="mailbox-star"><a href="#"><i class="fa {{ $message->is_important==1?'fa-star':'fa-star-o' }} text-yellow"></i></a></td>
                                             <td class="mailbox-name"><a href="{{ url('admin/mailbox-show') }}">{{ $message->sender->name }}</a></td>
                                             <td class="mailbox-subject">
-
-                                                @if(Request::segment(3) == "Sent")
-                                                    {{ $message->subject }}
+                                                @if($message->is_unread == 1)
+                                                    <b>{{ $message->subject }}</b>
                                                 @else
-                                                    @if($message->currentReceiver()!= null && $message->currentReceiver()->is_unread == 1)
-                                                        <b>{{ $message->subject }}</b>
-                                                    @else
-                                                        {{ $message->subject }}
-                                                    @endif
+                                                    {{ $message->subject }}
                                                 @endif
                                             </td>
                                             <td class="mailbox-attachment">

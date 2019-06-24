@@ -22,7 +22,7 @@ class CreateMailboxFlagsTable extends Migration
             $table->timestamps();
 
             $table->foreign('mailbox_id')->references('id')->on('mailbox')->onDelete('cascade');
-            $table->foreign('user_id')->references('id')->on('mailbox');
+            $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

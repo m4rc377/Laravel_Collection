@@ -3,9 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\MailerFactory;
+use App\Models\MailboxFolder;
 use App\Models\Mailbox;
 use App\Models\MailboxAttachment;
+use App\Models\MailboxFlags;
 use App\Models\MailboxReceiver;
+use App\Models\MailboxUserFolder;
 use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,16 +17,13 @@ class MailboxController extends Controller
 {
     protected $mailer;
 
-    protected $folders = array(
-        array("name"=>"Inbox", "icon" => "fa fa-inbox"),
-        array("name"=>"Sent", "icon" => "fa fa-envelope-o"),
-        array("name"=>"Drafts", "icon" => "fa fa-file-text-o"),
-        array("name"=>"Trash", "icon" => "fa fa-trash-o"),
-    );
+    protected $folders = array();
 
     public function __construct(MailerFactory $mailer)
     {
         $this->mailer = $mailer;
+
+        $this->getFolders();
     }
 
 
@@ -43,9 +43,9 @@ class MailboxController extends Controller
             $folder = "Inbox";
         }
 
-        $data = $this->getData($keyword, $perPage, $folder);
+        $messages = $this->getData($keyword, $perPage, $folder);
 
-        list($messages, $unreadMessages) = $data;
+        $unreadMessages = $this->getUnreadMessages();
 
         return view('pages.mailbox.index', compact('folders', 'messages', 'unreadMessages'));
     }
@@ -55,7 +55,7 @@ class MailboxController extends Controller
     {
         $folders = $this->folders;
 
-        list($messages, $unreadMessages) = $this->getData("", 0, null);
+        $unreadMessages = $this->getUnreadMessages();
 
         $users = User::where('is_active', 1)->where('id', '!=', Auth::user()->id)->get();
 
@@ -80,6 +80,8 @@ class MailboxController extends Controller
 
         $body = $request->body;
 
+        $submit = $request->submit;
+
 
         // save message
         $mailbox = new Mailbox();
@@ -90,17 +92,11 @@ class MailboxController extends Controller
         $mailbox->time_sent = date("Y-m-d H:i:s");
         $mailbox->parent_id = 0;
 
-        if($request->submit == 2 || !$receiver_ids) {
-            $mailbox->folder = "Drafts";
-        } else {
-            $mailbox->folder = "Sent";
-        }
-
         $mailbox->save();
 
 
-        // save receivers if found
-        $this->saveReceivers($receiver_ids, $mailbox);
+        // save receivers and flags
+        $this->save($submit, $receiver_ids, $mailbox);
 
 
         // save attachments if found
@@ -130,57 +126,82 @@ class MailboxController extends Controller
 
 
     /**
+     * get Folders
+     */
+    private function getFolders(): void
+    {
+        $this->folders = MailboxFolder::all();
+    }
+
+    /**
      * getData
      *
      *
      * @param $keyword
      * @param $perPage
-     * @param $folder
+     * @param $foldername
      * @return array
      */
-    private function getData($keyword, $perPage, $folder = null)
+    private function getData($keyword, $perPage, $foldername)
     {
-        $messages = [];
+        $folder = MailboxFolder::where('title', $foldername)->first();
 
-        if($folder != null) {
-            if ($folder == "Inbox") {
-                $query = Mailbox::join('mailbox_receivers', 'mailbox_receivers.mailbox_id', '=', 'mailboxes.id')
-                    ->where('mailbox_receivers.receiver_id', Auth::user()->id)
-                    ->where('folder', "Sent")
+        if($foldername == "Inbox") {
+
+            $query = Mailbox::join('mailbox_receiver', 'mailbox_receiver.mailbox_id', '=', 'mailbox.id')
+                    ->join('mailbox_user_folder', 'mailbox_user_folder.user_id', '=', 'mailbox_receiver.receiver_id')
+                    ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
+                    ->where('mailbox_receiver.receiver_id', Auth::user()->id)
+                    ->where('mailbox_user_folder.folder_id', $folder->id)
                     ->where('sender_id', '!=', Auth::user()->id)
                     ->where('parent_id', 0)
-                    ->select(["*", "mailboxes.id as id"]);
-            } else if ($folder == "Sent" || $folder == "Drafts") {
-                $query = Mailbox::where('sender_id', Auth::user()->id)
-                    ->where('folder', $folder)
-                    ->where('parent_id', 0);
-            } else if ($folder == "Trash") {
-                $query = Mailbox::join('mailbox_receivers', 'mailbox_receivers.mailbox_id', '=', 'mailboxes.id')
-                    ->where(function ($query) {
-                        $query->where('sender_id', Auth::user()->id)
-                            ->orWhere('mailbox_receivers.receiver_id', Auth::user()->id);
-                    })
-                    ->where('folder', $folder)
-                    ->where('parent_id', 0);
-            }
-
-            if (!empty($keyword)) {
-                $query->where('subject', 'like', "%$keyword%");
-            }
-
-            $messages = $query->paginate($perPage);
+                    ->select(["*", "mailbox.id as id"]);
+        } else if ($foldername == "Sent" || $foldername == "Drafts") {
+            $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
+                ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
+                ->where('mailbox_user_folder.folder_id', $folder->id)
+                ->where('mailbox_user_folder.user_id', Auth::user()->id)
+                ->where('parent_id', 0)
+                ->select(["*", "mailbox.id as id"]);
+        } else {
+            $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
+                ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
+                ->leftJoin('mailbox_receiver', 'mailbox_receiver.mailbox_id', '=', 'mailbox.id')
+                ->where(function ($query) {
+                    $query->where('mailbox_user_folder.user_id', Auth::user()->id)
+                          ->orWhere('mailbox_receiver.receiver_id', Auth::user()->id);
+                })
+                ->where('mailbox_user_folder.folder_id', $folder->id)
+                ->where('parent_id', 0)
+                ->select(["*", "mailbox.id as id"]);
         }
 
 
+        if (!empty($keyword)) {
+            $query->where('subject', 'like', "%$keyword%");
+        }
 
-        $unreadMessages = Mailbox::join('mailbox_receivers', 'mailbox_receivers.mailbox_id', '=', 'mailboxes.id')
-            ->where('mailbox_receivers.receiver_id', Auth::user()->id)
-            ->where('sender_id', '!=', Auth::user()->id)
-            ->where('folder', "Sent")
-            ->where('parent_id', 0)
-            ->where('mailbox_receivers.is_unread', 1)->count();
+        $messages = $query->paginate($perPage);
 
-        return [$messages, $unreadMessages];
+        return $messages;
+    }
+
+
+    /**
+     * get Unread Messages
+     *
+     *
+     * @return mixed
+     */
+    private function getUnreadMessages()
+    {
+        $messages = Mailbox::join('mailbox_flags', 'mailbox_flags.mailbox_id', '=', 'mailbox.id')
+                    ->where('mailbox_flags.user_id', Auth::user()->id)
+                    ->where('parent_id', 0)
+                    ->where('mailbox_flags.is_unread', 1)
+                    ->count();
+
+        return $messages;
     }
 
 
@@ -218,6 +239,97 @@ class MailboxController extends Controller
 
 
     /**
+     * save
+     *
+     *
+     * @param $submit
+     * @param $receiver_ids
+     * @param $mailbox
+     */
+    private function save($submit, $receiver_ids, $mailbox)
+    {
+
+        // We will save two records in tables mailbox_user_folder and mailbox_flags
+        // for both the sender and the receivers
+        // For the sender perspective the message will be in the "Sent" folder
+        // For the receiver perspective the message will be in the "Inbox" folder
+
+
+        // First: The sender
+        // save folder as "Sent"
+        $mailbox_user_folder = new MailboxUserFolder();
+
+        $mailbox_user_folder->mailbox_id = $mailbox->id;
+
+        $mailbox_user_folder->user_id = $mailbox->sender_id;
+
+        // if click drafts button or no receivers save into "Drafts" folder
+        if($submit == 2 || !$receiver_ids) {
+            $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Drafts")->first()->id;
+        } else {
+            $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Sent")->first()->id;
+        }
+
+        $mailbox_user_folder->save();
+
+        // save flags "is_unread=0"
+        $mailbox_flag = new MailboxFlags();
+
+        $mailbox_flag->mailbox_id = $mailbox->id;
+
+        $mailbox_flag->user_id = $mailbox->sender_id;;
+
+        $mailbox_flag->is_unread = 0;
+
+        $mailbox_flag->is_important = 0;
+
+        $mailbox_flag->save();
+
+
+        // First: The receivers
+        // if there are receivers and sent button clicked
+        if($submit == 1 && $receiver_ids) {
+
+            foreach ($receiver_ids as $receiver_id) {
+
+                // save receiver
+                $mailbox_receiver = new MailboxReceiver();
+
+                $mailbox_receiver->mailbox_id = $mailbox->id;
+
+                $mailbox_receiver->receiver_id = $receiver_id;
+
+                $mailbox_receiver->save();
+
+
+                // save folder as "Inbox"
+                $mailbox_user_folder = new MailboxUserFolder();
+
+                $mailbox_user_folder->mailbox_id = $mailbox->id;
+
+                $mailbox_user_folder->user_id = $receiver_id;
+
+                $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Inbox")->first()->id;
+
+                $mailbox_user_folder->save();
+
+
+                // save flags "is_unread=1"
+                $mailbox_flag = new MailboxFlags();
+
+                $mailbox_flag->mailbox_id = $mailbox->id;
+
+                $mailbox_flag->user_id = $receiver_id;
+
+                $mailbox_flag->is_unread = 1;
+
+                $mailbox_flag->save();
+            }
+        }
+    }
+
+
+    /**
      * uploadAttachments
      *
      *
@@ -243,32 +355,6 @@ class MailboxController extends Controller
                 $attachment->mailbox_id = $mailbox->id;
                 $attachment->attachment = $new_name;
                 $attachment->save();
-            }
-        }
-    }
-
-
-    /**
-     * saveReceivers
-     *
-     *
-     * @param $receiver_ids
-     * @param $mailbox
-     */
-    private function saveReceivers($receiver_ids, $mailbox)
-    {
-        if($receiver_ids) {
-
-            foreach ($receiver_ids as $receiver_id) {
-                $mailbox_receiver = new MailboxReceiver();
-
-                $mailbox_receiver->mailbox_id = $mailbox->id;
-
-                $mailbox_receiver->receiver_id = $receiver_id;
-
-                $mailbox_receiver->is_unread = 1;
-
-                $mailbox_receiver->save();
             }
         }
     }
