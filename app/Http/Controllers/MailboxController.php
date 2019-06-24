@@ -155,6 +155,9 @@ class MailboxController extends Controller
                     ->where('mailbox_user_folder.folder_id', $folder->id)
                     ->where('sender_id', '!=', Auth::user()->id)
                     ->where('parent_id', 0)
+                    ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
+                    ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
+                    ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
                     ->select(["*", "mailbox.id as id"]);
         } else if ($foldername == "Sent" || $foldername == "Drafts") {
             $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
@@ -162,6 +165,8 @@ class MailboxController extends Controller
                 ->where('mailbox_user_folder.folder_id', $folder->id)
                 ->where('mailbox_user_folder.user_id', Auth::user()->id)
                 ->where('parent_id', 0)
+                ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
+                ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
                 ->select(["*", "mailbox.id as id"]);
         } else {
             $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
@@ -173,6 +178,8 @@ class MailboxController extends Controller
                 })
                 ->where('mailbox_user_folder.folder_id', $folder->id)
                 ->where('parent_id', 0)
+                ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
+                ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
                 ->select(["*", "mailbox.id as id"]);
         }
 
@@ -180,6 +187,8 @@ class MailboxController extends Controller
         if (!empty($keyword)) {
             $query->where('subject', 'like', "%$keyword%");
         }
+
+        $query->orderBy('mailbox.id', 'DESC');
 
         $messages = $query->paginate($perPage);
 
