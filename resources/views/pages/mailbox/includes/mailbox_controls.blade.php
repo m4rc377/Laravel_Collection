@@ -3,7 +3,7 @@
     <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i>
     </button>
     <div class="btn-group">
-        <button type="button" class="btn btn-default btn-sm" title="make important"><i class="fa fa-star"></i></button>
+        <button type="button" class="btn btn-default btn-sm" title="toggle important state"><i class="fa fa-star"></i></button>
         <button type="button" class="btn btn-default btn-sm" title="add to trash"><i class="fa fa-trash-o"></i></button>
 
         @if(Request::segment(3) != 'Drafts')

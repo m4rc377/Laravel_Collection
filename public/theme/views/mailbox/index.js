@@ -21,23 +21,29 @@ $(function () {
         $(this).data("clicks", !clicks);
     });
 
-    //Handle starring for glyphicon and font awesome
+    //Handle starring
     $(".mailbox-star").click(function (e) {
         e.preventDefault();
         //detect type
         var $this = $(this).find("a > i");
-        var glyph = $this.hasClass("glyphicon");
-        var fa = $this.hasClass("fa");
 
-        //Switch states
-        if (glyph) {
-            $this.toggleClass("glyphicon-star");
-            $this.toggleClass("glyphicon-star-empty");
-        }
+        Mailbox.toggleImportant([$(this).parents("tr").attr("data-mailbox-flag-id")], function (response) {
 
-        if (fa) {
-            $this.toggleClass("fa-star");
-            $this.toggleClass("fa-star-o");
-        }
+           if(response.state == 0) {
+               alert(response.msg);
+           } else {
+               response.updated_flags.map(function(value) {
+                   if(value.is_important == 1) {
+                       //Switch states
+                       $this.removeClass("fa-star-o").addClass("fa-star");
+                   } else {
+                       //Switch states
+                       $this.removeClass("fa-star").addClass("fa-star-o");
+                   }
+
+                   alert(response.msg);
+               });
+           }
+        });
     });
 });

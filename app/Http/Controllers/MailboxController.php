@@ -136,6 +136,36 @@ class MailboxController extends Controller
 
 
     /**
+     * toggle important
+     *
+     *
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function toggleImportant(Request $request)
+    {
+        if(!$request->mailbox_flag_id || count($request->mailbox_flag_id) == 0)
+            return response()->json(['state' => 0, 'msg' => 'required mailbox_flag_id'], 500);
+
+        $updated_flags = [];
+
+        foreach ($request->mailbox_flag_id as $id) {
+
+            $mailbox_flag = MailboxFlags::find($id);
+
+            $mailbox_flag->is_important = ($mailbox_flag->is_important==0?1:0);
+
+            $mailbox_flag->save();
+
+            $updated_flags[] = $mailbox_flag;
+        }
+
+        return response()->json(['state' => 1, 'msg' => 'updated sucessfully', 'updated_flags' => $updated_flags], 200);
+    }
+
+
+    /**
      * get Folders
      */
     private function getFolders(): void
@@ -168,7 +198,7 @@ class MailboxController extends Controller
                     ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
                     ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                     ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                    ->select(["*", "mailbox.id as id"]);
+                    ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id"]);
         } else if ($foldername == "Sent" || $foldername == "Drafts") {
             $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
                 ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
@@ -177,7 +207,7 @@ class MailboxController extends Controller
                 ->where('parent_id', 0)
                 ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                 ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                ->select(["*", "mailbox.id as id"]);
+                ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id"]);
         } else {
             $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
                 ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
@@ -190,7 +220,7 @@ class MailboxController extends Controller
                 ->where('parent_id', 0)
                 ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                 ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                ->select(["*", "mailbox.id as id"]);
+                ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id"]);
         }
 
 

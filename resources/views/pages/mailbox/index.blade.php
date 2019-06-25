@@ -56,8 +56,8 @@
                                     <tbody>
 
                                     @foreach($messages as $message)
-                                        <tr>
-                                            <td><input type="checkbox" value="1" data-id="{{ $message->id }}" class="check-message"></td>
+                                        <tr data-mailbox-id="{{ $message->id }}" data-mailbox-flag-id="{{ $message->mailbox_flag_id }}">
+                                            <td><input type="checkbox" value="1" data-mailbox-id="{{ $message->id }}" data-mailbox-flag-id="{{ $message->mailbox_flag_id }}" class="check-message"></td>
                                             <td class="mailbox-star"><a href="#"><i class="fa {{ $message->is_important==1?'fa-star':'fa-star-o' }} text-yellow"></i></a></td>
                                             <td class="mailbox-name"><a href="{{ url('admin/mailbox-show/' . $message->id) }}">{{ $message->sender->name }}</a></td>
                                             <td class="mailbox-subject">
@@ -102,6 +102,8 @@
 @endsection
 
 @section('scripts')
+
+    <script src="{{ asset('theme/views/mailbox/functions.js') }}" type="text/javascript"></script>
 
     <script src="{{ asset('theme/views/mailbox/index.js') }}" type="text/javascript"></script>
 
