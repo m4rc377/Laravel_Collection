@@ -72,7 +72,7 @@
                                                     <i class="fa fa-paperclip"></i>
                                                 @endif
                                             </td>
-                                            <td class="mailbox-date">@if($message->time_sent) {{ Carbon\Carbon::parse($message->time_sent)->diffForHumans()}}  @endif</td>
+                                            <td class="mailbox-date">@if($message->time_sent) {{ Carbon\Carbon::parse($message->time_sent)->diffForHumans()}} @else {{ "not sent yet" }}  @endif</td>
                                         </tr>
                                     @endforeach
                                     </tbody>

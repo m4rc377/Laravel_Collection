@@ -275,14 +275,14 @@ class MailboxController extends Controller
 
 
         // 1. The sender
-        // save folder as "Sent"
+        // save folder as "Sent" or "Drafts" depending on button
         $mailbox_user_folder = new MailboxUserFolder();
 
         $mailbox_user_folder->mailbox_id = $mailbox->id;
 
         $mailbox_user_folder->user_id = $mailbox->sender_id;
 
-        // if click drafts button save into "Drafts" folder
+        // if click "Draft" button save into "Drafts" folder
         if($submit == 2) {
             $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Drafts")->first()->id;
         } else {
@@ -306,7 +306,7 @@ class MailboxController extends Controller
 
 
         // 2. The receivers
-        // if there are receivers and sent button clicked
+        // if there are receivers and sent button clicked then save into flags, folders and receivers
         if($submit == 1) {
 
             foreach ($receiver_ids as $receiver_id) {
