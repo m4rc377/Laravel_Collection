@@ -24,26 +24,55 @@ $(function () {
     //Handle starring
     $(".mailbox-star").click(function (e) {
         e.preventDefault();
-        //detect type
-        var $this = $(this).find("a > i");
 
-        Mailbox.toggleImportant([$(this).parents("tr").attr("data-mailbox-flag-id")], function (response) {
+        handleImportant([$(this).parents("tr").attr("data-mailbox-flag-id")]);
+    });
 
-           if(response.state == 0) {
-               alert(response.msg);
-           } else {
-               response.updated_flags.map(function(value) {
-                   if(value.is_important == 1) {
-                       //Switch states
-                       $this.removeClass("fa-star-o").addClass("fa-star");
-                   } else {
-                       //Switch states
-                       $this.removeClass("fa-star").addClass("fa-star-o");
-                   }
+    // handle starring for checked inputs
+    $(".mailbox-star-all").on("click", function (e) {
+        if(!checkboxCheck()) {
+            return;
+        }
 
-                   alert(response.msg);
-               });
-           }
+        var checked = new Array();
+
+        $(".check-message:checked").each(function (val) {
+            checked.push($(this).parents("tr").attr("data-mailbox-flag-id"));
         });
+
+        handleImportant(checked);
     });
 });
+
+function checkboxCheck()
+{
+    if($(".check-message:checked").length == 0) {
+        alert("Please select at least one row to process!");
+
+        return false;
+    }
+
+    return true;
+}
+
+function handleImportant(data)
+{
+    Mailbox.toggleImportant(data, function (response) {
+
+        if(response.state == 0) {
+            alert(response.msg);
+        } else {
+            response.updated_flags.map(function(value) {
+                if(value.is_important == 1) {
+                    //Switch states
+                    $("tr[data-mailbox-flag-id='"+value.id+"'] td.mailbox-star").find("a > i").removeClass("fa-star-o").addClass("fa-star");
+                } else {
+                    //Switch states
+                    $("tr[data-mailbox-flag-id='"+value.id+"'] td.mailbox-star").find("a > i").removeClass("fa-star").addClass("fa-star-o");
+                }
+            });
+
+            alert(response.msg);
+        }
+    });
+}

@@ -1,5 +1,8 @@
 /**
- * Mailbox
+ * Mailbox main core functions
+ *
+ * These functions used only to send the request and deliver the response to a callback
+ * so it's not the responsibility of these functions for example to update the UI
  *
  * @type {{toggleImportant: Mailbox.toggleImportant, trash: Mailbox.trash, remove: Mailbox.remove, send: Mailbox.send, reply: Mailbox.reply, forward: Mailbox.forward}}
  */
@@ -17,10 +20,7 @@ var Mailbox = {
            }
         });
     },
-    trash: function trash() {
-
-    },
-    remove: function remove() {
+    trash: function trash() {                    // move to the trash folder
 
     },
     send: function send() {
