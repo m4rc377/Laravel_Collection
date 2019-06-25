@@ -56,9 +56,17 @@
                                     <tbody>
 
                                     @foreach($messages as $message)
-                                        <tr data-mailbox-id="{{ $message->id }}" data-mailbox-flag-id="{{ $message->mailbox_flag_id }}">
-                                            <td><input type="checkbox" value="1" data-mailbox-id="{{ $message->id }}" data-mailbox-flag-id="{{ $message->mailbox_flag_id }}" class="check-message"></td>
-                                            <td class="mailbox-star"><a href="#"><i class="fa {{ $message->is_important==1?'fa-star':'fa-star-o' }} text-yellow"></i></a></td>
+                                        <tr data-mailbox-id="{{ $message->id }}" data-mailbox-flag-id="{{ $message->mailbox_flag_id }}" data-user-folder-id="{{ $message->mailbox_folder_id }}">
+                                            <td>
+                                                @if(Request::segment(3) != 'Trash')
+                                                    <input type="checkbox" value="1" data-mailbox-id="{{ $message->id }}" data-mailbox-flag-id="{{ $message->mailbox_flag_id }}" class="check-message">
+                                                @endif
+                                            </td>
+                                            @if(Request::segment(3) != 'Trash')
+                                                <td class="mailbox-star">
+                                                    <a href="#"><i class="fa {{ $message->is_important==1?'fa-star':'fa-star-o' }} text-yellow"></i></a>
+                                                </td>
+                                            @endif
                                             <td class="mailbox-name"><a href="{{ url('admin/mailbox-show/' . $message->id) }}">{{ $message->sender->name }}</a></td>
                                             <td class="mailbox-subject">
                                                 @if($message->is_unread == 1)

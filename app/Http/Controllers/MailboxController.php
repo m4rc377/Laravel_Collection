@@ -131,6 +131,15 @@ class MailboxController extends Controller
 
         $mailbox = Mailbox::find($id);
 
+//        $folder = $mailbox->userFolder()->folder()->first();
+
+        // if this message from "Inbox" then set is_unread=0
+        if(($flag = $mailbox->flag()) && isset($flag->is_unread) && $flag->is_unread == 1) {
+            $flag->is_unread = 0;
+            $flag->save();
+        }
+
+
         return view('pages.mailbox.show', compact('folders', 'unreadMessages', 'mailbox'));
     }
 
@@ -145,12 +154,12 @@ class MailboxController extends Controller
      */
     public function toggleImportant(Request $request)
     {
-        if(!$request->mailbox_flag_id || count($request->mailbox_flag_id) == 0)
-            return response()->json(['state' => 0, 'msg' => 'required mailbox_flag_id'], 500);
+        if(!$request->mailbox_flag_ids || count($request->mailbox_flag_ids) == 0)
+            return response()->json(['state' => 0, 'msg' => 'required mailbox_flag_ids'], 500);
 
-        $updated_flags = [];
+        $updated = [];
 
-        foreach ($request->mailbox_flag_id as $id) {
+        foreach ($request->mailbox_flag_ids as $id) {
 
             $mailbox_flag = MailboxFlags::find($id);
 
@@ -158,10 +167,41 @@ class MailboxController extends Controller
 
             $mailbox_flag->save();
 
-            $updated_flags[] = $mailbox_flag;
+            $updated[] = $mailbox_flag;
         }
 
-        return response()->json(['state' => 1, 'msg' => 'updated sucessfully', 'updated_flags' => $updated_flags], 200);
+        return response()->json(['state' => 1, 'msg' => 'updated sucessfully', 'updated' => $updated], 200);
+    }
+
+
+    /**
+     * trash
+     *
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function trash(Request $request)
+    {
+        if(!$request->mailbox_user_folder_ids || count($request->mailbox_user_folder_ids) == 0)
+            return response()->json(['state' => 0, 'msg' => 'required mailbox_user_folder_id'], 500);
+
+        $updated = [];
+
+        $trashFolder = MailboxFolder::where('title', 'Trash')->first();
+
+        foreach ($request->mailbox_user_folder_ids as $id) {
+
+            $mailbox_user_folder = MailboxUserFolder::find($id);
+
+            $mailbox_user_folder->folder_id = $trashFolder->id;
+
+            $mailbox_user_folder->save();
+
+            $updated[] = $mailbox_user_folder;
+        }
+
+        return response()->json(['state' => 1, 'msg' => 'messages moved to trashed folder', 'updated' => $updated], 200);
     }
 
 
@@ -198,7 +238,7 @@ class MailboxController extends Controller
                     ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
                     ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                     ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                    ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id"]);
+                    ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id", "mailbox_user_folder.id as mailbox_folder_id"]);
         } else if ($foldername == "Sent" || $foldername == "Drafts") {
             $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
                 ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
@@ -207,7 +247,7 @@ class MailboxController extends Controller
                 ->where('parent_id', 0)
                 ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                 ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id"]);
+                ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id", "mailbox_user_folder.id as mailbox_folder_id"]);
         } else {
             $query = Mailbox::join('mailbox_user_folder', 'mailbox_user_folder.mailbox_id', '=', 'mailbox.id')
                 ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
@@ -220,7 +260,8 @@ class MailboxController extends Controller
                 ->where('parent_id', 0)
                 ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                 ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id"]);
+                ->whereRaw('mailbox_user_folder.user_id!=mailbox_receiver.receiver_id')
+                ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id", "mailbox_user_folder.id as mailbox_folder_id"]);
         }
 
 
@@ -244,10 +285,19 @@ class MailboxController extends Controller
      */
     private function getUnreadMessages()
     {
+        $folder = MailboxFolder::where('title', "Inbox")->first();
+
         $messages = Mailbox::join('mailbox_flags', 'mailbox_flags.mailbox_id', '=', 'mailbox.id')
-                    ->where('mailbox_flags.user_id', Auth::user()->id)
+                    ->join('mailbox_receiver', 'mailbox_receiver.mailbox_id', '=', 'mailbox.id')
+                    ->join('mailbox_user_folder', 'mailbox_user_folder.user_id', '=', 'mailbox_receiver.receiver_id')
+                    ->where('mailbox_receiver.receiver_id', Auth::user()->id)
                     ->where('parent_id', 0)
                     ->where('mailbox_flags.is_unread', 1)
+                    ->where('mailbox_user_folder.folder_id', $folder->id)
+                    ->where('sender_id', '!=', Auth::user()->id)
+                    ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
+                    ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
+                    ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
                     ->count();
 
         return $messages;

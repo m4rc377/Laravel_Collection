@@ -33,19 +33,23 @@ class Mailbox extends Model
         return $this->hasMany(self::class, "parent_id")->where("parent_id", "<>", 0);
     }
 
-    public function currentReceiver()
+    public function userFolders()
     {
-        $curr = null;
+        return $this->hasMany(MailboxUserFolder::class);
+    }
 
-        foreach ($this->receivers as $receiver) {
+    public function userFolder()
+    {
+        return $this->hasMany(MailboxUserFolder::class)->where('user_id', Auth::user()->id)->first();
+    }
 
-            if($receiver->receiver_id == Auth::user()->id) {
-                $curr = $receiver;
+    public function flags()
+    {
+        return $this->hasMany(MailboxFlags::class);
+    }
 
-                break;
-            }
-        }
-
-        return $curr;
+    public function flag()
+    {
+        return $this->hasMany(MailboxFlags::class)->where('user_id', Auth::user()->id)->first();
     }
 }

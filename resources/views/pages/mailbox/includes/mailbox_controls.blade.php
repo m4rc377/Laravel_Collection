@@ -1,15 +1,20 @@
 <div class="mailbox-controls">
-    <!-- Check all button -->
-    <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i>
-    </button>
-    <div class="btn-group">
-        <button type="button" class="btn btn-default btn-sm mailbox-star-all" title="toggle important state"><i class="fa fa-star"></i></button>
-        <button type="button" class="btn btn-default btn-sm" title="add to trash"><i class="fa fa-trash-o"></i></button>
 
-        @if(Request::segment(3) != 'Drafts')
+    <!-- Check all button -->
+    @if(Request::segment(3) != 'Trash')
+        <button type="button" class="btn btn-default btn-sm checkbox-toggle"><i class="fa fa-square-o"></i>
+        </button>
+    @endif
+    <div class="btn-group">
+
+        @if(Request::segment(3)==''||Request::segment(3)=='Inbox' || Request::segment(3) == 'Sent')
+            <button type="button" class="btn btn-default btn-sm mailbox-star-all" title="toggle important state"><i class="fa fa-star"></i></button>
+            <button type="button" class="btn btn-default btn-sm mailbox-trash-all" title="add to trash"><i class="fa fa-trash-o"></i></button>
             <button type="button" class="btn btn-default btn-sm" title="reply"><i class="fa fa-reply"></i></button>
             <button type="button" class="btn btn-default btn-sm" title="forward"><i class="fa fa-mail-forward"></i></button>
-        @else
+        @elseif(Request::segment(3) == 'Drafts')
+            <button type="button" class="btn btn-default btn-sm mailbox-star-all" title="toggle important state"><i class="fa fa-star"></i></button>
+            <button type="button" class="btn btn-default btn-sm mailbox-trash-all" title="add to trash"><i class="fa fa-trash-o"></i></button>
             <button type="button" class="btn btn-default btn-sm" title="send"><i class="fa fa-mail-forward"></i></button>
         @endif
     </div>

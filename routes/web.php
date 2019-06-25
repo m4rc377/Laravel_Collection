@@ -67,6 +67,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::put('/mailbox-toggle-important', 'MailboxController@toggleImportant');
 
+    Route::delete('/mailbox-trash', 'MailboxController@trash');
+
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');
     });
