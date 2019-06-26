@@ -35,10 +35,10 @@ var Mailbox = {
     send: function send() {
 
     },
-    reply: function reply() {
-
+    reply: function reply(mailbox_id) {
+        window.location.replace(BASE_URL + "/admin/mailbox-reply/" + mailbox_id);
     },
-    forward: function forward() {
-
+    forward: function forward(mailbox_id) {
+        window.location.replace(BASE_URL + "/admin/mailbox-forward/" + mailbox_id);
     }
 };

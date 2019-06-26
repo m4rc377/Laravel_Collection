@@ -67,7 +67,8 @@ class MailboxController extends Controller
     {
         $this->validate($request, [
             'subject' => 'required',
-            'receiver_id' => 'required'
+            'receiver_id' => 'required',
+            'body' => 'required'
         ]);
 
         try {
@@ -205,6 +206,121 @@ class MailboxController extends Controller
     }
 
 
+    public function getReply($id)
+    {
+        $mailbox = Mailbox::find($id);
+
+        $folders = $this->folders;
+
+        $unreadMessages = $this->getUnreadMessages();
+
+        return view('pages.mailbox.reply', compact('folders', 'unreadMessages', 'mailbox'));
+    }
+
+
+    public function postReply(Request $request, $id)
+    {
+        $this->validate($request, [
+            'body' => 'required'
+        ]);
+
+        try {
+            $this->validateAttachments($request);
+        } catch (\Exception $ex) {
+            return redirect('admin/mailbox-reply/' . $id)->with('flash_error', $ex->getMessage());
+        }
+
+        // save message
+        $old_mailbox = Mailbox::find($id);
+
+        $mailbox = new Mailbox();
+
+        $mailbox->subject = starts_with($old_mailbox->subject, "RE:")?$old_mailbox->subject:"RE: " . $old_mailbox->subject;
+        $mailbox->body = $request->body;
+        $mailbox->sender_id = Auth::user()->id;
+        $mailbox->time_sent = date("Y-m-d H:i:s");
+        $mailbox->parent_id = $old_mailbox->id;
+
+        $mailbox->save();
+
+
+        // save receivers and flags
+        $receiver_ids = [$old_mailbox->sender_id];
+
+        $this->save(1, $receiver_ids, $mailbox);
+
+
+        // save attachments if found
+        $this->uploadAttachments($request, $mailbox);
+
+        // send email
+        $this->mailer->sendMailboxEmail($mailbox);
+
+        return redirect('admin/mailbox-show/' . $id)->with('flash_message', 'Reply sent');
+    }
+
+
+    public function getForward($id)
+    {
+        $mailbox = Mailbox::find($id);
+
+        $folders = $this->folders;
+
+        $unreadMessages = $this->getUnreadMessages();
+
+        $users = User::where('is_active', 1)->where('id', '!=', Auth::user()->id)->get();
+
+        return view('pages.mailbox.forward', compact('folders', 'unreadMessages', 'mailbox', 'users'));
+    }
+
+
+    public function postForward(Request $request, $id)
+    {
+        $this->validate($request, [
+            'subject' => 'required',
+            'receiver_id' => 'required',
+            'body' => 'required'
+        ]);
+
+        try {
+            $this->validateAttachments($request);
+        } catch (\Exception $ex) {
+            return redirect('admin/mailbox-forward/' . $id)->with('flash_error', $ex->getMessage());
+        }
+
+        $receiver_ids = $request->receiver_id;
+
+        $subject = $request->subject;
+
+        $body = $request->body;
+
+        // save message
+        $old_mailbox = Mailbox::find($id);
+
+        $mailbox = new Mailbox();
+
+        $mailbox->subject = $subject;
+        $mailbox->body = $body;
+        $mailbox->sender_id = Auth::user()->id;
+        $mailbox->time_sent = date("Y-m-d H:i:s");
+        $mailbox->parent_id = 0;
+
+        $mailbox->save();
+
+
+        // save receivers and flags
+        $this->save(1, $receiver_ids, $mailbox);
+
+        // save attachments if found
+        $this->uploadAttachments($request, $mailbox);
+
+        // send email
+        $this->mailer->sendMailboxEmail($mailbox);
+
+        return redirect('admin/mailbox/Sent')->with('flash_message', 'Message sent');
+    }
+
+
     /**
      * get Folders
      */
@@ -234,7 +350,7 @@ class MailboxController extends Controller
                     ->where('mailbox_receiver.receiver_id', Auth::user()->id)
                     ->where('mailbox_user_folder.folder_id', $folder->id)
                     ->where('sender_id', '!=', Auth::user()->id)
-                    ->where('parent_id', 0)
+//                    ->where('parent_id', 0)
                     ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
                     ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                     ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
@@ -244,7 +360,7 @@ class MailboxController extends Controller
                 ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
                 ->where('mailbox_user_folder.folder_id', $folder->id)
                 ->where('mailbox_user_folder.user_id', Auth::user()->id)
-                ->where('parent_id', 0)
+//                ->where('parent_id', 0)
                 ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                 ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
                 ->select(["*", "mailbox.id as id", "mailbox_flags.id as mailbox_flag_id", "mailbox_user_folder.id as mailbox_folder_id"]);
@@ -257,7 +373,7 @@ class MailboxController extends Controller
                           ->orWhere('mailbox_receiver.receiver_id', Auth::user()->id);
                 })
                 ->where('mailbox_user_folder.folder_id', $folder->id)
-                ->where('parent_id', 0)
+//                ->where('parent_id', 0)
                 ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
                 ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
                 ->whereRaw('mailbox_user_folder.user_id!=mailbox_receiver.receiver_id')
@@ -287,18 +403,19 @@ class MailboxController extends Controller
     {
         $folder = MailboxFolder::where('title', "Inbox")->first();
 
-        $messages = Mailbox::join('mailbox_flags', 'mailbox_flags.mailbox_id', '=', 'mailbox.id')
-                    ->join('mailbox_receiver', 'mailbox_receiver.mailbox_id', '=', 'mailbox.id')
-                    ->join('mailbox_user_folder', 'mailbox_user_folder.user_id', '=', 'mailbox_receiver.receiver_id')
-                    ->where('mailbox_receiver.receiver_id', Auth::user()->id)
-                    ->where('parent_id', 0)
-                    ->where('mailbox_flags.is_unread', 1)
-                    ->where('mailbox_user_folder.folder_id', $folder->id)
-                    ->where('sender_id', '!=', Auth::user()->id)
-                    ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
-                    ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
-                    ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                    ->count();
+        $messages = Mailbox::join('mailbox_receiver', 'mailbox_receiver.mailbox_id', '=', 'mailbox.id')
+                            ->join('mailbox_user_folder', 'mailbox_user_folder.user_id', '=', 'mailbox_receiver.receiver_id')
+                            ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
+                            ->where('mailbox_receiver.receiver_id', Auth::user()->id)
+//                          ->where('parent_id', 0)
+                            ->where('mailbox_flags.is_unread', 1)
+                            ->where('mailbox_user_folder.folder_id', $folder->id)
+                            ->where('sender_id', '!=', Auth::user()->id)
+                            ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
+                            ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
+                            ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
+                            ->groupBy('mailbox_receiver.receiver_id')
+                            ->count();
 
         return $messages;
     }

@@ -27,18 +27,16 @@
                 <div class="box box-primary">
                     <div class="box-header with-border">
                         <h3 class="box-title">Read Mail</h3>
-
-                        <div class="box-tools pull-right">
-                            <a href="#" class="btn btn-box-tool" data-toggle="tooltip" title="Previous"><i class="fa fa-chevron-left"></i></a>
-                            <a href="#" class="btn btn-box-tool" data-toggle="tooltip" title="Next"><i class="fa fa-chevron-right"></i></a>
-                        </div>
                     </div>
+
+                    @include('includes.flash_message')
+
                     <!-- /.box-header -->
                     <div class="box-body no-padding">
                         <div class="mailbox-read-info">
                             <h3>{{ $mailbox->subject }}</h3>
                             <h5>From: {{ $mailbox->sender->email }}
-                                <span class="mailbox-read-time pull-right">{{ !empty($mailbox->sent_time)?date("d M. Y h:i A", strtotime($mailbox->sent_time)):"not sent yet" }}</span></h5>
+                                <span class="mailbox-read-time pull-right">{{ !empty($mailbox->time_sent)?date("d M. Y h:i A", strtotime($mailbox->time_sent)):"not sent yet" }}</span></h5>
                         </div>
                         <!-- /.mailbox-read-info -->
                         <div class="mailbox-controls with-border text-center">
@@ -62,37 +60,37 @@
                     </div>
                     <!-- /.box-body -->
                     <div class="box-footer">
-                        <ul class="mailbox-attachments clearfix">
 
-                            @if($mailbox->attachments->count())
-                                @foreach($mailbox->attachments as $attachment)
-                                    <li>
-                                        <span class="mailbox-attachment-icon"><i class="fa {{ in_array(pathinfo(public_path('uploads/mailbox/' . $attachment->attachment), PATHINFO_EXTENSION), ["jpg", "jpeg", "png", "gif"])?'fa-image':'fa-file' }}"></i></span>
+                        @include('pages.mailbox.includes.attachments', ['mailbox' => $mailbox])
 
-                                        <div class="mailbox-attachment-info">
-                                            <a href="{{ url('uploads/mailbox/' . $attachment->attachment) }}" class="mailbox-attachment-name"><i class="fa fa-paperclip"></i> {{ $attachment->attachment }}</a>
-                                            <span class="mailbox-attachment-size">
-                                                {{ filesize(public_path('uploads/mailbox/' . $attachment->attachment))/1024 }} KB
-                                                <a href="{{ url('uploads/mailbox/' . $attachment->attachment) }}" class="btn btn-default btn-xs pull-right"><i class="fa fa-cloud-download"></i></a>
-                                            </span>
-                                        </div>
-                                    </li>
-                                @endforeach
-                            @endif
-                        </ul>
                     </div>
-                    <!-- /.box-footer -->
-                    <div class="box-footer">
-                        <div class="pull-right">
-                            <button type="button" class="btn btn-default"><i class="fa fa-reply"></i> Reply</button>
-                            <button type="button" class="btn btn-default"><i class="fa fa-share"></i> Forward</button>
-                        </div>
-                        <button type="button" class="btn btn-default"><i class="fa fa-trash-o"></i> Delete</button>
-                        <button type="button" class="btn btn-default"><i class="fa fa-print"></i> Print</button>
-                    </div>
-                    <!-- /.box-footer -->
                 </div>
                 <!-- /. box -->
+
+                @if($mailbox->replies->count() > 0)
+                    <h3>Replies</h3>
+                    @foreach($mailbox->replies as $reply)
+                        <div class="box box-primary">
+                            <div class="box-header with-border">
+                                <h3 class="box-title"><strong>From: </strong>{{ $reply->sender->name }}</h3>
+                            </div>
+                            <div class="box-body no-padding">
+                                <div class="mailbox-read-info">
+                                    <h3>{{ $reply->subject }}</h3>
+                                    <h5>From: {{ $reply->sender->email }}
+                                        <span class="mailbox-read-time pull-right">{{ !empty($reply->time_sent)?date("d M. Y h:i A", strtotime($reply->time_sent)):"not sent yet" }}</span></h5>
+                                </div>
+                                <div class="mailbox-read-message">
+                                    {!! $reply->body !!}
+                                </div>
+                            </div>
+                            <div class="box-footer">
+                                @include('pages.mailbox.includes.attachments', ['mailbox' => $reply])
+                            </div>
+                        </div>
+                    @endforeach
+                @endif
+
             </div>
             <!-- /.col -->
         </div>

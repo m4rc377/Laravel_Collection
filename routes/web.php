@@ -69,6 +69,14 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::delete('/mailbox-trash', 'MailboxController@trash');
 
+    Route::get('/mailbox-reply/{id}', 'MailboxController@getReply');
+
+    Route::post('/mailbox-reply/{id}', 'MailboxController@postReply');
+
+    Route::get('/mailbox-forward/{id}', 'MailboxController@getForward');
+
+    Route::post('/mailbox-forward/{id}', 'MailboxController@postForward');
+
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');
     });

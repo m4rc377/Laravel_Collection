@@ -57,6 +57,28 @@ $(function () {
 
         handleTrash(checked);
     });
+
+    // handle reply
+    $(".mailbox-reply").on("click", function (e) {
+        if($(".check-message:checked").length != 1) {
+            alert("Please select one message only to reply");
+
+            return false;
+        }
+
+        Mailbox.reply($(".check-message:checked").parents("tr").attr("data-mailbox-id"));
+    });
+
+    // handle forward
+    $(".mailbox-forward").on("click", function (e) {
+        if($(".check-message:checked").length != 1) {
+            alert("Please select one message only to reply");
+
+            return false;
+        }
+
+        Mailbox.forward($(".check-message:checked").parents("tr").attr("data-mailbox-id"));
+    });
 });
 
 function checkboxCheck()
