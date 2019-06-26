@@ -15,11 +15,11 @@
         @elseif(Request::segment(3) == 'Sent')
             <button type="button" class="btn btn-default btn-sm mailbox-star-all" title="toggle important state"><i class="fa fa-star"></i></button>
             <button type="button" class="btn btn-default btn-sm mailbox-trash-all" title="add to trash"><i class="fa fa-trash-o"></i></button>
-            <button type="button" class="btn btn-default btn-sm" title="forward"><i class="fa fa-mail-forward"></i></button>
+            <button type="button" class="btn btn-default btn-sm mailbox-forward" title="forward"><i class="fa fa-mail-forward"></i></button>
         @elseif(Request::segment(3) == 'Drafts')
             <button type="button" class="btn btn-default btn-sm mailbox-star-all" title="toggle important state"><i class="fa fa-star"></i></button>
             <button type="button" class="btn btn-default btn-sm mailbox-trash-all" title="add to trash"><i class="fa fa-trash-o"></i></button>
-            <button type="button" class="btn btn-default btn-sm" title="send"><i class="fa fa-mail-forward"></i></button>
+            <button type="button" class="btn btn-default btn-sm mailbox-send" title="send"><i class="fa fa-mail-forward"></i></button>
         @endif
     </div>
     <div class="pull-right">
