@@ -23,6 +23,11 @@ class Mailbox extends Model
         return $this->hasMany(MailboxReceiver::class);
     }
 
+    public function tmpReceivers()
+    {
+        return $this->hasMany(MailboxTmpReceiver::class);
+    }
+
     public function attachments()
     {
         return $this->hasMany(MailboxAttachment::class, "mailbox_id");

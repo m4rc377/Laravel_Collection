@@ -74,3 +74,31 @@ function user_can($permission)
 {
     return \Auth::user()->is_admin == 1 || \Auth::user()->can($permission);
 }
+
+
+/**
+ * get Unread Messages Count
+ *
+ *
+ * @return mixed
+ */
+function getUnreadMessagesCount()
+{
+    $folder = \App\Models\MailboxFolder::where('title', "Inbox")->first();
+
+    $count = \App\Models\Mailbox::join('mailbox_receiver', 'mailbox_receiver.mailbox_id', '=', 'mailbox.id')
+        ->join('mailbox_user_folder', 'mailbox_user_folder.user_id', '=', 'mailbox_receiver.receiver_id')
+        ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
+        ->where('mailbox_receiver.receiver_id', \Illuminate\Support\Facades\Auth::user()->id)
+//                          ->where('parent_id', 0)
+        ->where('mailbox_flags.is_unread', 1)
+        ->where('mailbox_user_folder.folder_id', $folder->id)
+        ->where('sender_id', '!=', \Illuminate\Support\Facades\Auth::user()->id)
+        ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
+        ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
+        ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
+        ->groupBy('mailbox_receiver.receiver_id')
+        ->count();
+
+    return $count;
+}

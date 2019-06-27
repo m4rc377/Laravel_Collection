@@ -32,8 +32,8 @@ var Mailbox = {
             }
         });
     },
-    send: function send() {
-
+    send: function send(mailbox_id) {
+        window.location.replace(BASE_URL + "/admin/mailbox-send/" + mailbox_id);
     },
     reply: function reply(mailbox_id) {
         window.location.replace(BASE_URL + "/admin/mailbox-reply/" + mailbox_id);

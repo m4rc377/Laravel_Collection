@@ -72,12 +72,23 @@ $(function () {
     // handle forward
     $(".mailbox-forward").on("click", function (e) {
         if($(".check-message:checked").length != 1) {
-            alert("Please select one message only to reply");
+            alert("Please select one message only to forward");
 
             return false;
         }
 
         Mailbox.forward($(".check-message:checked").parents("tr").attr("data-mailbox-id"));
+    });
+
+    // handle send
+    $(".mailbox-send").on("click", function (e) {
+        if($(".check-message:checked").length != 1) {
+            alert("Please select one message only to send");
+
+            return false;
+        }
+
+        Mailbox.send($(".check-message:checked").parents("tr").attr("data-mailbox-id"));
     });
 });
 

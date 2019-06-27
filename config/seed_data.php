@@ -11,7 +11,9 @@ return [
     'permissions' => [
         'create_contact', 'edit_contact', 'delete_contact', 'list_contacts', 'view_contact', 'assign_contact',
         'create_document', 'edit_document', 'delete_document', 'list_documents', 'view_document', 'assign_document',
-        'create_task', 'edit_task', 'delete_task', 'list_tasks', 'view_task', 'assign_task', 'update_task_status', 'edit_profile'
+        'create_task', 'edit_task', 'delete_task', 'list_tasks', 'view_task', 'assign_task', 'update_task_status',
+        'edit_profile', 'compose_email', 'list_emails', 'view_email', 'toggle_important_email', 'trash_email', 'send_email',
+        'reply_email', 'forward_email', 'show_email_notifications'
     ],
     'mailbox_folders' => array(
         array("title"=>"Inbox", "icon" => "fa fa-inbox"),

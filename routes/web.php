@@ -77,6 +77,8 @@ Route::group(['prefix' => 'admin', 'middleware' => 'auth'], function () {
 
     Route::post('/mailbox-forward/{id}', 'MailboxController@postForward');
 
+    Route::get('/mailbox-send/{id}', 'MailboxController@send');
+
     Route::get('/forbidden', function () {
         return view('pages.forbidden.forbidden_area');
     });

@@ -68,6 +68,14 @@
                 </li>
             @endif
 
+            @if(user_can('list_emails'))
+                <li class="{{ Request::segment(2) == "mailbox" || strpos(Request::segment(2), "mailbox")!==FALSE?"active":"" }}">
+                    <a href="{{ url('/admin/mailbox') }}">
+                        <i class="fa fa-envelope"></i> <span>Mailbox</span>
+                    </a>
+                </li>
+            @endif
+
             @if(\Auth::user()->is_admin == 1)
                 <li class="{{ in_array(Request::segment(2), ['users', 'permissions', 'roles'])?"active":"" }} treeview">
                     <a href="#">

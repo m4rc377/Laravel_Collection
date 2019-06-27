@@ -46,7 +46,7 @@ class MailboxController extends Controller
 
         $messages = $this->getData($keyword, $perPage, $folder);
 
-        $unreadMessages = $this->getUnreadMessages();
+        $unreadMessages = getUnreadMessagesCount();
 
         return view('pages.mailbox.index', compact('folders', 'messages', 'unreadMessages'));
     }
@@ -56,7 +56,7 @@ class MailboxController extends Controller
     {
         $folders = $this->folders;
 
-        $unreadMessages = $this->getUnreadMessages();
+        $unreadMessages = getUnreadMessagesCount();
 
         $users = User::where('is_active', 1)->where('id', '!=', Auth::user()->id)->get();
 
@@ -128,7 +128,7 @@ class MailboxController extends Controller
     {
         $folders = $this->folders;
 
-        $unreadMessages = $this->getUnreadMessages();
+        $unreadMessages = getUnreadMessagesCount();
 
         $mailbox = Mailbox::find($id);
 
@@ -266,7 +266,7 @@ class MailboxController extends Controller
 
         $folders = $this->folders;
 
-        $unreadMessages = $this->getUnreadMessages();
+        $unreadMessages = getUnreadMessagesCount();
 
         $users = User::where('is_active', 1)->where('id', '!=', Auth::user()->id)->get();
 
@@ -313,6 +313,79 @@ class MailboxController extends Controller
 
         // save attachments if found
         $this->uploadAttachments($request, $mailbox);
+
+        // if the old mailbox has attachments copy them into the new mailbox
+        $this->copyAttachments($old_mailbox, $mailbox);
+
+        // send email
+        $this->mailer->sendMailboxEmail($mailbox);
+
+        return redirect('admin/mailbox/Sent')->with('flash_message', 'Message sent');
+    }
+
+
+    public function send($id)
+    {
+        $mailbox = Mailbox::find($id);
+
+        $receiver_ids = $mailbox->tmpReceivers->pluck('receiver_id')->toArray();
+
+
+        //1. for sender
+
+        // update user folder to be "Sent"
+        $mailbox_user_folder = MailboxUserFolder::where('mailbox_id', $mailbox->id)
+            ->where('user_id', Auth::user()->id)->first();
+
+        $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Sent")->first()->id;
+
+        $mailbox_user_folder->save();
+
+
+        //2. for the receivers
+
+        // copy the receiver ids from tmp receiver table to the receiver table
+        foreach ($receiver_ids as $receiver_id) {
+
+            $mailbox_receiver = new MailboxReceiver();
+
+            $mailbox_receiver->mailbox_id = $mailbox->id;
+
+            $mailbox_receiver->receiver_id = $receiver_id;
+
+            $mailbox_receiver->save();
+
+
+            // save folder as "Inbox"
+            $mailbox_user_folder = new MailboxUserFolder();
+
+            $mailbox_user_folder->mailbox_id = $mailbox->id;
+
+            $mailbox_user_folder->user_id = $receiver_id;
+
+            $mailbox_user_folder->folder_id = MailboxFolder::where("title", "Inbox")->first()->id;
+
+            $mailbox_user_folder->save();
+
+
+            // save flags "is_unread=1"
+            $mailbox_flag = new MailboxFlags();
+
+            $mailbox_flag->mailbox_id = $mailbox->id;
+
+            $mailbox_flag->user_id = $receiver_id;
+
+            $mailbox_flag->is_unread = 1;
+
+            $mailbox_flag->save();
+
+        }
+
+        // delete tmp receivers
+        foreach ($mailbox->tmpReceivers as $tmpReceiver) {
+
+            $tmpReceiver->delete();
+        }
 
         // send email
         $this->mailer->sendMailboxEmail($mailbox);
@@ -388,34 +461,6 @@ class MailboxController extends Controller
         $query->orderBy('mailbox.id', 'DESC');
 
         $messages = $query->paginate($perPage);
-
-        return $messages;
-    }
-
-
-    /**
-     * get Unread Messages
-     *
-     *
-     * @return mixed
-     */
-    private function getUnreadMessages()
-    {
-        $folder = MailboxFolder::where('title', "Inbox")->first();
-
-        $messages = Mailbox::join('mailbox_receiver', 'mailbox_receiver.mailbox_id', '=', 'mailbox.id')
-                            ->join('mailbox_user_folder', 'mailbox_user_folder.user_id', '=', 'mailbox_receiver.receiver_id')
-                            ->join('mailbox_flags', 'mailbox_flags.user_id', '=', 'mailbox_user_folder.user_id')
-                            ->where('mailbox_receiver.receiver_id', Auth::user()->id)
-//                          ->where('parent_id', 0)
-                            ->where('mailbox_flags.is_unread', 1)
-                            ->where('mailbox_user_folder.folder_id', $folder->id)
-                            ->where('sender_id', '!=', Auth::user()->id)
-                            ->whereRaw('mailbox.id=mailbox_receiver.mailbox_id')
-                            ->whereRaw('mailbox.id=mailbox_flags.mailbox_id')
-                            ->whereRaw('mailbox.id=mailbox_user_folder.mailbox_id')
-                            ->groupBy('mailbox_receiver.receiver_id')
-                            ->count();
 
         return $messages;
     }
@@ -577,7 +622,7 @@ class MailboxController extends Controller
                 $filename = $file->getClientOriginalName();
                 $extension = $file->getClientOriginalExtension();
 
-                $new_name = $filename . '-' . time().'.'.$extension;
+                $new_name = pathinfo($filename, PATHINFO_FILENAME) . '-' . time().'.'.$extension;
 
                 $file->move($destination, $new_name);
 
@@ -585,6 +630,47 @@ class MailboxController extends Controller
                 $attachment->mailbox_id = $mailbox->id;
                 $attachment->attachment = $new_name;
                 $attachment->save();
+            }
+        }
+    }
+
+
+    /**
+     * copyAttachments
+     *
+     *
+     * @param Mailbox $old_mailbox
+     * @param Mailbox $new_mailbox
+     */
+    private function copyAttachments(Mailbox $old_mailbox, Mailbox $new_mailbox)
+    {
+        if($old_mailbox->attachments->count() > 0)
+        {
+            foreach ($old_mailbox->attachments as $attachment)
+            {
+                if(file_exists(public_path('uploads/mailbox/' . $attachment->attachment)))
+                {
+                    $filename = pathinfo($attachment->attachment, PATHINFO_FILENAME);
+
+                    $extension = pathinfo($attachment->attachment, PATHINFO_EXTENSION);
+
+                    $new_name = $filename . '-' . time().'.'.$extension;
+
+                    chmod(public_path() . '/uploads/mailbox/' . $attachment->attachment, 0777);
+
+                    if(copy(public_path() . '/uploads/mailbox/' . $attachment->attachment, public_path() . '/uploads/mailbox/' . $new_name)) {
+
+                        chmod(public_path() . '/uploads/mailbox/' . $new_name, 0777);
+
+                        $attachment = new MailboxAttachment();
+
+                        $attachment->mailbox_id = $new_mailbox->id;
+
+                        $attachment->attachment = $new_name;
+
+                        $attachment->save();
+                    }
+                }
             }
         }
     }
