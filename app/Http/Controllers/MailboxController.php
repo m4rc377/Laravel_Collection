@@ -22,6 +22,8 @@ class MailboxController extends Controller
 
     public function __construct(MailerFactory $mailer)
     {
+        $this->middleware('admin:index-list_emails|create-compose_email|show-view_email|toggleImportant-toggle_important_email|trash-trash_email|getReply-reply_email|getForward-forward_email|send-send_email', ['except' => ['store', 'postReply', 'postForward']]);
+
         $this->mailer = $mailer;
 
         $this->getFolders();
@@ -46,7 +48,7 @@ class MailboxController extends Controller
 
         $messages = $this->getData($keyword, $perPage, $folder);
 
-        $unreadMessages = getUnreadMessagesCount();
+        $unreadMessages = count(getUnreadMessages());
 
         return view('pages.mailbox.index', compact('folders', 'messages', 'unreadMessages'));
     }
@@ -56,7 +58,7 @@ class MailboxController extends Controller
     {
         $folders = $this->folders;
 
-        $unreadMessages = getUnreadMessagesCount();
+        $unreadMessages = count(getUnreadMessages());
 
         $users = User::where('is_active', 1)->where('id', '!=', Auth::user()->id)->get();
 
@@ -128,7 +130,7 @@ class MailboxController extends Controller
     {
         $folders = $this->folders;
 
-        $unreadMessages = getUnreadMessagesCount();
+        $unreadMessages = count(getUnreadMessages());
 
         $mailbox = Mailbox::find($id);
 
@@ -212,7 +214,7 @@ class MailboxController extends Controller
 
         $folders = $this->folders;
 
-        $unreadMessages = $this->getUnreadMessages();
+        $unreadMessages = count(getUnreadMessages());
 
         return view('pages.mailbox.reply', compact('folders', 'unreadMessages', 'mailbox'));
     }
@@ -266,7 +268,7 @@ class MailboxController extends Controller
 
         $folders = $this->folders;
 
-        $unreadMessages = getUnreadMessagesCount();
+        $unreadMessages = count(getUnreadMessages());
 
         $users = User::where('is_active', 1)->where('id', '!=', Auth::user()->id)->get();
 

@@ -24,7 +24,10 @@
             @include('includes.flash_message')
 
             <div class="col-md-3">
-                <a href="{{ url('admin/mailbox-create') }}" class="btn btn-primary btn-block margin-bottom">Compose</a>
+
+                @if(user_can('compose_email'))
+                    <a href="{{ url('admin/mailbox-create') }}" class="btn btn-primary btn-block margin-bottom">Compose</a>
+                @endif
 
                 @include('pages.mailbox.includes.folders_panel')
             </div>
@@ -37,7 +40,7 @@
                         <div class="box-tools pull-right">
                             <div class="has-feedback">
                                 <form method="GET" action="{{ url('/admin/mailbox/' . Request::segment(3)) }}" accept-charset="UTF-8" class="form-inline my-2 my-lg-0" role="search">
-                                    <input type="text" class="form-control input-sm" name="search" placeholder="Search Mail">
+                                    <input type="text" class="form-control input-sm" name="search" value="{{ request('search') }}" placeholder="Search Mail">
                                     <span class="glyphicon glyphicon-search form-control-feedback"></span>
                                 </form>
                             </div>
