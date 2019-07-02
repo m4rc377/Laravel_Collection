@@ -351,7 +351,9 @@ class TasksController extends Controller
     protected function do_validate($request)
     {
         $this->validate($request, [
-            'name' => 'required'
+            'name' => 'required',
+            'start_date' => 'date',
+            'end_date'   => 'date|after_or_equal:start_date'
         ]);
     }
 

@@ -100,6 +100,14 @@
                 </li>
             @endif
 
+            @if(user_can('show_calendar'))
+                <li class="{{ Request::segment(2) == "calendar"?"active":"" }}">
+                    <a href="{{ url('/admin/calendar') }}">
+                        <i class="fa fa-calendar"></i> <span>Calendar</span>
+                    </a>
+                </li>
+            @endif
+
             @if(\Auth::user()->is_admin == 1)
                 <li class="{{ in_array(Request::segment(2), ['users', 'permissions', 'roles'])?"active":"" }} treeview">
                     <a href="#">
