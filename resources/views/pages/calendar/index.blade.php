@@ -63,7 +63,7 @@
         </div>
     </section>
 
-    @include('pages.calendar.includes.event_model')
+    @include('pages.calendar.includes.event_modal')
 @endsection
 
 @section('scripts')
