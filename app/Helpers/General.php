@@ -122,3 +122,34 @@ function getUnreadMessages()
 
     return $messages;
 }
+
+
+/**
+ * getContacts
+ *
+ *
+ * @param null $status
+ * @return \Illuminate\Database\Eloquent\Collection|static[]
+ */
+function getContacts($status = null)
+{
+    if(!$status)
+        return \App\Models\Contact::all();
+
+    return \App\Models\Contact::join('contact_status', 'contact_status.id', '=', 'contact.status')
+        ->where('contact_status.name', $status)
+        ->get();
+
+}
+
+
+/**
+ * get Users
+ *
+ *
+ * @return mixed
+ */
+function getUsers()
+{
+    return \App\User::where('is_admin', 0)->where('is_active', 1)->get();
+}

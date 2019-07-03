@@ -46,6 +46,10 @@ class ContactsController extends Controller
             $query->where('status', '=', ContactStatus::where('name', \request('status_name'))->first()->id);
         }
 
+        if(\request('assigned_user_id') != null) {
+            $query->where('assigned_user_id', \request('assigned_user_id'));
+        }
+
         // if not admin user show contacts if assigned to or created by that user
         if(Auth::user()->is_admin == 0) {
 
