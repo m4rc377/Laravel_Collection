@@ -33,6 +33,8 @@ class MailboxController extends Controller
     /**
      * index
      *
+     * list all messages
+     *
      * @return \Illuminate\View\View
      */
     public function index(Request $request, $folder = "")
@@ -54,6 +56,13 @@ class MailboxController extends Controller
     }
 
 
+    /**
+     * create
+     *
+     * show compose form
+     *
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function create()
     {
         $folders = $this->folders;
@@ -65,6 +74,15 @@ class MailboxController extends Controller
         return view('pages.mailbox.compose', compact('folders', 'unreadMessages', 'users'));
     }
 
+
+    /**
+     * store
+     *
+     * store and send the message
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function store(Request $request)
     {
         $this->validate($request, [
@@ -178,7 +196,7 @@ class MailboxController extends Controller
 
 
     /**
-     * trash
+     * trash email
      *
      *
      * @param Request $request
@@ -208,6 +226,14 @@ class MailboxController extends Controller
     }
 
 
+    /**
+     * getReply
+     *
+     * show reply form
+     *
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function getReply($id)
     {
         $mailbox = Mailbox::find($id);
@@ -220,6 +246,16 @@ class MailboxController extends Controller
     }
 
 
+    /**
+     * postReply
+     *
+     *
+     * send the reply
+     *
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function postReply(Request $request, $id)
     {
         $this->validate($request, [
@@ -262,6 +298,14 @@ class MailboxController extends Controller
     }
 
 
+    /**
+     * getForward
+     *
+     * show forward form
+     *
+     * @param $id
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
     public function getForward($id)
     {
         $mailbox = Mailbox::find($id);
@@ -276,6 +320,15 @@ class MailboxController extends Controller
     }
 
 
+    /**
+     * postForward
+     *
+     * forward the message
+     *
+     * @param Request $request
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function postForward(Request $request, $id)
     {
         $this->validate($request, [
@@ -326,6 +379,14 @@ class MailboxController extends Controller
     }
 
 
+    /**
+     * send
+     *
+     * used to send a Draft message
+     *
+     * @param $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function send($id)
     {
         $mailbox = Mailbox::find($id);
