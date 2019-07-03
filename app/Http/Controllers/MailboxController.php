@@ -676,9 +676,12 @@ class MailboxController extends Controller
      */
     private function uploadAttachments($request, $mailbox)
     {
+        checkDirectory("mailbox");
+
         $destination = public_path('uploads/mailbox/');
 
         if($request->hasFile('attachments')) {
+
             $files = $request->file('attachments');
 
             foreach ($files as $file) {

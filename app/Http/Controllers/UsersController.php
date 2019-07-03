@@ -76,6 +76,9 @@ class UsersController extends Controller
         $requestData['is_active'] = isset($requestData['is_active'])?1:0;
 
         if ($request->hasFile('image')) {
+
+            checkDirectory("users");
+
             $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
         }
 
@@ -136,6 +139,9 @@ class UsersController extends Controller
         $requestData = $request->except(['_token']);
 
         if ($request->hasFile('image')) {
+
+            checkDirectory("users");
+
             $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
         }
 
@@ -213,6 +219,9 @@ class UsersController extends Controller
         $requestData = $request->except(['_token']);
 
         if ($request->hasFile('image')) {
+
+            checkDirectory("users");
+
             $requestData['image'] = uploadFile($request, 'image', public_path('uploads/users'));
         }
 

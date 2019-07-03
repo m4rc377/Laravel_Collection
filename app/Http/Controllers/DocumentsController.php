@@ -77,6 +77,8 @@ class DocumentsController extends Controller
         
         $requestData = $request->except(['_token']);
 
+        checkDirectory("documents");
+
         $requestData['file'] = uploadFile($request, 'file', public_path('uploads/documents'));
 
         $requestData['created_by_id'] = Auth::user()->id;
@@ -138,6 +140,9 @@ class DocumentsController extends Controller
         $requestData = $request->except(['_token']);
 
         if ($request->hasFile('file')) {
+
+            checkDirectory("documents");
+
             $requestData['file'] = uploadFile($request, 'file', public_path('uploads/documents'));
         }
 

@@ -64,6 +64,26 @@ function getSetting($key)
 
 
 /**
+ * check directory exists and try to create it
+ *
+ *
+ * @param $directory
+ */
+function checkDirectory($directory)
+{
+    try {
+        if (!file_exists(public_path('uploads/' . $directory))) {
+            mkdir(public_path('uploads/' . $directory));
+
+            chmod(public_path('uploads/' . $directory), 0777);
+        }
+    } catch (\Exception $e) {
+        die($e->getMessage());
+    }
+}
+
+
+/**
  * check if user has permission
  *
  *
