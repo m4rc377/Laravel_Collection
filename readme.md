@@ -32,3 +32,14 @@ php artisan migrate
 php artisan db:seed
 ```
 
+## Mailbox Folder seeding
+```
+php artisan db:seed --class=MailboxFolderSeeder
+```
+
+## Uploads Directory
+```
+mkdir public/uploads/
+chmod -R 777 public/uploads/
+```
+
