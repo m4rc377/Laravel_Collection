@@ -9,8 +9,8 @@ First run this command in terminal to install composer dependencies
 composer install
 ```
 
-## Database
-Change your database settings in .env with with appropriate settings
+## Database & Email settings
+Change your database and email settings in .env with with appropriate settings
 ```
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
@@ -18,7 +18,16 @@ DB_PORT=3306
 DB_DATABASE=homestead
 DB_USERNAME=homestead
 DB_PASSWORD=secret
+
+
+MAIL_DRIVER=smtp
+MAIL_HOST=smtp.mailtrap.io
+MAIL_PORT=2525
+MAIL_USERNAME=username
+MAIL_PASSWORD=password
+MAIL_ENCRYPTION=null
 ```
+
 
 ## Run migrations
 
