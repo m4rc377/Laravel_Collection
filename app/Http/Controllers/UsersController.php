@@ -226,8 +226,10 @@ class UsersController extends Controller
         }
 
         if(!empty($requestData['password'])) {
-dd(!empty($requestData['password']));
+
             $requestData['password'] = bcrypt($requestData['password']);
+        } else {
+            unset($requestData['password']);
         }
 
         $user = User::findOrFail($id);
