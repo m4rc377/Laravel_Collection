@@ -36,7 +36,7 @@
                                                 <a href="{{ url('/admin/mailbox-show/' . $message->id) }}">
                                                     <div class="pull-left">
                                                         @if(!empty($message->sender->image) && file_exists(public_path('uploads/users/' . $message->sender->image)))
-                                                            <img src="{{ url('uploads/users/' . $message->sender->imag) }}" class="img-circle" alt="User Image">
+                                                            <img src="{{ url('uploads/users/' . $message->sender->image) }}" class="img-circle" alt="User Image">
                                                         @else
                                                             <img src="{{ url('theme/dist/img/image_placeholder.png') }}" class="img-circle" alt="User Image">
                                                         @endif
