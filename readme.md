@@ -1,5 +1,7 @@
 
 # Mini CRM
+[![Tutorial_From](https://img.shields.io/badge/Tutorial-Link-blue)](https://webmobtuts.com/backend-development/implementing-crm-system-with-laravel-part-1-preparation/)
+
 This is a repository of the crm system with laravel. Try to follow the tutorial series carefully on [Webmobtuts.com](http://webmobtuts.com)
 
 ## Getting started
